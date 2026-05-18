@@ -8,7 +8,6 @@ public class FormUtama extends JFrame {
 
     private FormBarang    panelBarang;
     private FormCustomer  panelCustomer;
-    private FormKategori  panelKategori;
     private FormTransaksi panelTransaksi;
     private FormLaporan   panelLaporan;
     private FormMember    panelMember;
@@ -17,16 +16,17 @@ public class FormUtama extends JFrame {
     private CardLayout cardLayout;
     private JButton    activeNavBtn;
 
-    // ── Dark gold palette — sama dengan FormLogin ──────────────────────────
-    private static final Color BG1      = new Color(22,  17,  2);
-    private static final Color BG2      = new Color(36,  28,  4);
-    private static final Color CARD     = new Color(42,  33,  7);
-    private static final Color CARD_BDR = new Color(72,  58, 14);
-    private static final Color GOLD     = new Color(210, 158, 22);
-    private static final Color GOLD_HI  = new Color(238, 185, 45);
-    private static final Color GOLD_LO  = new Color(168, 122, 12);
-    private static final Color MUTED    = new Color(165, 150, 105);
-    private static final Color NAV_FG   = new Color(140, 125, 85);
+    // ── Neobrutalism palette (Yellow + Neon, Mint header) ─────────────────
+    private static final Color BG       = new Color(255, 255, 255); // pure white
+    private static final Color BLACK    = new Color(  0,   0,   0);
+    private static final Color MINT     = new Color(212, 241, 212); // pastel mint header
+    private static final Color YELLOW   = new Color(255, 217,  61); // primary
+    private static final Color LIME     = new Color(180, 255,  57); // neon green
+    private static final Color PINK     = new Color(255,  85, 119); // hot pink accent
+    private static final Color ORANGE   = new Color(255, 140,  50);
+    private static final Color SHADOW   = new Color(  0,   0,   0);
+    private static final int   THICK    = 3;
+    private static final int   SHADOW_OFF = 5;
 
     public FormUtama() {
         setTitle("Toko Berkah Jaya — Sistem Informasi Penjualan");
@@ -49,21 +49,11 @@ public class FormUtama extends JFrame {
     // ── Header ─────────────────────────────────────────────────────────────
 
     private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout()) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setPaint(new GradientPaint(0, 0, BG1, getWidth(), 0, BG2));
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                // subtle blob kiri
-                g2.setColor(new Color(58, 47, 9, 80));
-                g2.fillOval(-30, -40, 160, 160);
-                g2.dispose();
-            }
-        };
-        header.setOpaque(false);
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(MINT);
         header.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 1, 0, GOLD_LO),
-            BorderFactory.createEmptyBorder(12, 24, 12, 20)));
+            BorderFactory.createMatteBorder(0, 0, THICK, 0, BLACK),
+            BorderFactory.createEmptyBorder(12, 20, 12, 20)));
 
         // Kiri: logo + judul
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
@@ -72,31 +62,38 @@ public class FormUtama extends JFrame {
         JPanel logoBox = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new GradientPaint(0, 0, GOLD_HI, 0, getHeight(), GOLD_LO));
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                int cx = getWidth() / 2, cy = getHeight() / 2;
-                g2.drawRoundRect(cx - 10, cy - 2, 20, 15, 4, 4);
-                g2.drawArc(cx - 6, cy - 11, 12, 11, 0, 180);
-                g2.drawLine(cx - 6, cy - 6, cx - 6, cy - 2);
-                g2.drawLine(cx + 6, cy - 6, cx + 6, cy - 2);
+                int w = getWidth(), h = getHeight();
+                // shadow
+                g2.setColor(SHADOW);
+                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                // fill
+                g2.setColor(YELLOW);
+                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                // border
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
+                // store icon (simple bag)
+                g2.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                int cx = (w - SHADOW_OFF) / 2, cy = (h - SHADOW_OFF) / 2;
+                g2.drawRoundRect(cx - 9, cy - 2, 18, 13, 3, 3);
+                g2.drawArc(cx - 6, cy - 10, 12, 11, 0, 180);
                 g2.dispose();
             }
         };
         logoBox.setOpaque(false);
-        logoBox.setPreferredSize(new Dimension(40, 40));
+        logoBox.setPreferredSize(new Dimension(46, 42));
 
         JPanel titles = new JPanel();
         titles.setLayout(new BoxLayout(titles, BoxLayout.Y_AXIS));
         titles.setOpaque(false);
         JLabel lTitle = new JLabel("BERKAH JAYA");
-        lTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        lTitle.setForeground(GOLD_HI);
+        lTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lTitle.setForeground(BLACK);
         JLabel lSub = new JLabel("Sistem Informasi Penjualan");
-        lSub.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lSub.setForeground(MUTED);
+        lSub.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        lSub.setForeground(BLACK);
         titles.add(lTitle);
         titles.add(lSub);
 
@@ -111,35 +108,42 @@ public class FormUtama extends JFrame {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new GradientPaint(0, 0, GOLD_HI, 0, getHeight(), GOLD_LO));
-                g2.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+                int w = getWidth(), h = getHeight();
+                g2.setColor(SHADOW);
+                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.setColor(PINK);
+                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
                 String init = (Session.namaLengkap != null && !Session.namaLengkap.isEmpty())
                         ? String.valueOf(Session.namaLengkap.charAt(0)).toUpperCase() : "?";
-                g2.setColor(new Color(22, 17, 2));
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 15));
+                g2.setColor(BLACK);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 18));
                 FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(init,
-                        (getWidth() - fm.stringWidth(init)) / 2,
-                        (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
+                int tx = (w - SHADOW_OFF - fm.stringWidth(init)) / 2;
+                int ty = (h - SHADOW_OFF + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(init, tx, ty);
                 g2.dispose();
             }
         };
         avatar.setOpaque(false);
-        avatar.setPreferredSize(new Dimension(36, 36));
+        avatar.setPreferredSize(new Dimension(42, 42));
 
         JPanel userStack = new JPanel();
         userStack.setLayout(new BoxLayout(userStack, BoxLayout.Y_AXIS));
         userStack.setOpaque(false);
         JLabel lName  = new JLabel(Session.namaLengkap != null ? Session.namaLengkap : "");
-        lName.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lName.setForeground(Color.WHITE);
+        lName.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lName.setForeground(BLACK);
         JLabel lLevel = new JLabel(Session.level != null ? Session.level : "");
-        lLevel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lLevel.setForeground(MUTED);
+        lLevel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        lLevel.setForeground(BLACK);
         userStack.add(lName);
         userStack.add(lLevel);
 
-        JButton btnLogout = goldButton("Logout");
+        JButton btnLogout = neoButton("Logout", PINK);
         btnLogout.addActionListener(e -> {
             int c = JOptionPane.showConfirmDialog(this,
                     "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
@@ -162,35 +166,25 @@ public class FormUtama extends JFrame {
     // ── Sidebar ────────────────────────────────────────────────────────────
 
     private JPanel buildSidebar() {
-        JPanel sidebar = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setPaint(new GradientPaint(0, 0, CARD, 0, getHeight(), BG1));
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setColor(new Color(58, 47, 9, 60));
-                g2.fillOval(-50, getHeight() - 200, 240, 240);
-                g2.dispose();
-            }
-        };
+        JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setOpaque(false);
-        sidebar.setPreferredSize(new Dimension(210, 0));
-        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, CARD_BDR));
+        sidebar.setBackground(BG);
+        sidebar.setPreferredSize(new Dimension(220, 0));
+        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, THICK, BLACK));
 
         // Section label
         sidebar.add(Box.createRigidArea(new Dimension(0, 20)));
-        JLabel lMenu = new JLabel("NAVIGASI");
-        lMenu.setFont(new Font("Segoe UI", Font.BOLD, 9));
-        lMenu.setForeground(new Color(90, 72, 20));
-        lMenu.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 0));
+        JLabel lMenu = new JLabel("  NAVIGASI");
+        lMenu.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        lMenu.setForeground(BLACK);
+        lMenu.setBorder(BorderFactory.createEmptyBorder(0, 12, 10, 0));
         lMenu.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lMenu.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
+        lMenu.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
         sidebar.add(lMenu);
 
         if ("Admin".equals(Session.level)) {
             activeNavBtn = navBtn(sidebar, "Barang");
                            navBtn(sidebar, "Customer");
-                           navBtn(sidebar, "Kategori");
                            navBtn(sidebar, "Transaksi");
                            navBtn(sidebar, "Laporan");
         } else {
@@ -201,33 +195,53 @@ public class FormUtama extends JFrame {
         sidebar.add(Box.createVerticalGlue());
 
         // Footer
-        JPanel foot = new JPanel(new FlowLayout(FlowLayout.LEFT, 18, 10));
+        JPanel foot = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 10));
         foot.setOpaque(false);
         foot.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         foot.setAlignmentX(Component.LEFT_ALIGNMENT);
-        foot.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, CARD_BDR));
-        JLabel lVer = new JLabel("v1.0  •  Berkah Jaya");
-        lVer.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lVer.setForeground(new Color(72, 58, 20));
+        foot.setBorder(BorderFactory.createMatteBorder(THICK, 0, 0, 0, BLACK));
+        JLabel lVer = new JLabel("v1.0 • BERKAH JAYA");
+        lVer.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        lVer.setForeground(BLACK);
         foot.add(lVer);
         sidebar.add(foot);
 
         return sidebar;
     }
 
+    /** Neobrutalism nav button: active = lime + shadow, inactive = white. */
     private JButton navBtn(JPanel sidebar, String name) {
         JButton btn = new JButton() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (this == activeNavBtn) {
-                    g2.setColor(new Color(210, 158, 22, 28));
-                    g2.fillRect(0, 0, getWidth(), getHeight());
-                    g2.setPaint(new GradientPaint(0, 0, GOLD_HI, 0, getHeight(), GOLD_LO));
-                    g2.fillRoundRect(0, 6, 4, getHeight() - 12, 2, 2);
-                } else if (getModel().isRollover()) {
-                    g2.setColor(new Color(210, 158, 22, 12));
-                    g2.fillRect(0, 0, getWidth(), getHeight());
+                int w = getWidth(), h = getHeight();
+                boolean active = (this == activeNavBtn);
+                boolean hover  = getModel().isRollover();
+
+                // Inner margin so the card doesn't touch edges
+                int mx = 10, my = 6;
+                int cardW = w - 2 * mx;
+                int cardH = h - 2 * my;
+
+                if (active) {
+                    // shadow
+                    g2.setColor(SHADOW);
+                    g2.fillRect(mx + SHADOW_OFF, my + SHADOW_OFF, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
+                    // fill
+                    g2.setColor(LIME);
+                    g2.fillRect(mx, my, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
+                    // border
+                    g2.setColor(BLACK);
+                    g2.setStroke(new BasicStroke(THICK));
+                    int t = THICK / 2;
+                    g2.drawRect(mx + t, my + t, cardW - SHADOW_OFF - THICK, cardH - SHADOW_OFF - THICK);
+                } else if (hover) {
+                    g2.setColor(YELLOW);
+                    g2.fillRect(mx, my, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
+                    g2.setColor(BLACK);
+                    g2.setStroke(new BasicStroke(THICK));
+                    int t = THICK / 2;
+                    g2.drawRect(mx + t, my + t, cardW - SHADOW_OFF - THICK, cardH - SHADOW_OFF - THICK);
                 }
                 g2.dispose();
                 super.paintComponent(g);
@@ -239,14 +253,17 @@ public class FormUtama extends JFrame {
         btn.setUI(new BasicButtonUI());
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setIconTextGap(11);
-        btn.setForeground(NAV_FG);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btn.setForeground(BLACK);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setOpaque(false);
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        btn.setContentAreaFilled(false);
+        btn.setPreferredSize(new Dimension(200, 54));
+        btn.setMinimumSize(new Dimension(120, 54));
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 54));
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btn.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 16));
+        btn.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 14));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addActionListener(e -> {
             activateNav(btn);
@@ -254,66 +271,43 @@ public class FormUtama extends JFrame {
             refreshPanel(name);
         });
         sidebar.add(btn);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 6)));
+        sidebar.add(Box.createRigidArea(new Dimension(0, 4)));
         return btn;
     }
 
-    /** Vector icon 24×24 untuk tiap menu item */
+    /** Vector icon 24×24 untuk tiap menu item — flat & bold style */
     private Icon navIcon(String name, JButton owner) {
         return new Icon() {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                boolean active = (owner == activeNavBtn);
-                Color   bgTop  = active ? GOLD_HI          : new Color(72, 58, 13);
-                Color   bgBot  = active ? GOLD_LO          : new Color(48, 38,  8);
-                Color   ic     = active ? new Color(22,17,2) : new Color(170,145,65);
-
-                // Background pill
-                g2.setPaint(new GradientPaint(x, y, bgTop, x, y + 24, bgBot));
-                g2.fillRoundRect(x, y, 24, 24, 8, 8);
-
-                // Vector icon (stroke)
-                g2.setColor(ic);
-                g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
                 switch (name) {
                     case "Barang" -> {
-                        // kotak paket
-                        g2.drawRoundRect(x+4, y+6, 16, 13, 3, 3);
-                        g2.drawLine(x+4,  y+11, x+20, y+11);
-                        g2.drawLine(x+12, y+6,  x+12, y+11);
+                        g2.drawRoundRect(x+3, y+5, 18, 14, 2, 2);
+                        g2.drawLine(x+3,  y+11, x+21, y+11);
+                        g2.drawLine(x+12, y+5,  x+12, y+11);
                     }
                     case "Customer" -> {
-                        // orang
                         g2.drawOval(x+8, y+3, 8, 8);
                         g2.drawArc( x+4, y+13, 16, 9, 0, 180);
                     }
-                    case "Kategori" -> {
-                        // 4 kotak grid
-                        g2.drawRoundRect(x+4,  y+4,  6, 6, 2, 2);
-                        g2.drawRoundRect(x+14, y+4,  6, 6, 2, 2);
-                        g2.drawRoundRect(x+4,  y+14, 6, 6, 2, 2);
-                        g2.drawRoundRect(x+14, y+14, 6, 6, 2, 2);
-                    }
                     case "Transaksi" -> {
-                        // dokumen / receipt
-                        g2.drawRoundRect(x+5, y+3, 14, 18, 3, 3);
+                        g2.drawRoundRect(x+5, y+3, 14, 18, 2, 2);
                         g2.drawLine(x+8, y+8,  x+16, y+8);
                         g2.drawLine(x+8, y+12, x+16, y+12);
                         g2.drawLine(x+8, y+16, x+13, y+16);
                     }
                     case "Laporan" -> {
-                        // bar chart
                         g2.fillRect(x+4,  y+14, 4, 7);
                         g2.fillRect(x+10, y+9,  4, 12);
                         g2.fillRect(x+16, y+5,  4, 16);
-                        g2.setStroke(new BasicStroke(1.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                         g2.drawLine(x+3, y+21, x+21, y+21);
                     }
                     case "Member" -> {
-                        // dua orang
                         g2.drawOval(x+2,  y+2,  8, 8);
                         g2.drawArc( x+0,  y+12, 12, 8, 0, 180);
                         g2.drawOval(x+13, y+3,  8, 8);
@@ -329,13 +323,9 @@ public class FormUtama extends JFrame {
 
     private void activateNav(JButton btn) {
         if (activeNavBtn != null) {
-            activeNavBtn.setForeground(NAV_FG);
-            activeNavBtn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             activeNavBtn.repaint();
         }
         activeNavBtn = btn;
-        btn.setForeground(GOLD_HI);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.repaint();
     }
 
@@ -344,17 +334,15 @@ public class FormUtama extends JFrame {
     private JPanel buildContent() {
         cardLayout = new CardLayout();
         cardPanel  = new JPanel(cardLayout);
-        cardPanel.setBackground(new Color(248, 244, 232)); // warm off-white
+        cardPanel.setBackground(BG);
 
         if ("Admin".equals(Session.level)) {
             panelBarang    = new FormBarang();
             panelCustomer  = new FormCustomer();
-            panelKategori  = new FormKategori();
             panelTransaksi = new FormTransaksi();
             panelLaporan   = new FormLaporan();
             cardPanel.add(panelBarang,    "Barang");
             cardPanel.add(panelCustomer,  "Customer");
-            cardPanel.add(panelKategori,  "Kategori");
             cardPanel.add(panelTransaksi, "Transaksi");
             cardPanel.add(panelLaporan,   "Laporan");
         } else {
@@ -364,6 +352,9 @@ public class FormUtama extends JFrame {
             cardPanel.add(panelTransaksi, "Transaksi");
         }
 
+        // Apply neobrutalism styling to all text fields / combo boxes inside each form
+        UITheme.applyNeoToTree(cardPanel);
+
         return cardPanel;
     }
 
@@ -371,38 +362,17 @@ public class FormUtama extends JFrame {
         switch (name) {
             case "Barang"    -> { if (panelBarang    != null) panelBarang.refresh(); }
             case "Customer"  -> { if (panelCustomer  != null) panelCustomer.refresh(); }
-            case "Kategori"  -> { if (panelKategori  != null) panelKategori.refresh(); }
             case "Transaksi" -> { if (panelTransaksi != null) panelTransaksi.refresh(); }
             case "Laporan"   -> { if (panelLaporan   != null) panelLaporan.refresh(); }
             case "Member"    -> { if (panelMember    != null) panelMember.refresh(); }
         }
     }
 
-    // ── Gold button (sama gaya dengan FormLogin) ───────────────────────────
+    // ── Neobrutalism button (flat color + hard shadow + thick border) ──────
 
-    private JButton goldButton(String text) {
-        JButton btn = new JButton(text) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Color top = getModel().isPressed() ? GOLD_LO : GOLD_HI;
-                Color bot = getModel().isPressed() ? GOLD_LO.darker() : GOLD_LO;
-                if (getModel().isRollover() && !getModel().isPressed()) { top = GOLD_HI.brighter(); bot = GOLD; }
-                g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bot));
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-            @Override protected void paintBorder(Graphics g) {}
-        };
-        btn.setUI(new BasicButtonUI());
-        btn.setForeground(new Color(22, 17, 2));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setOpaque(false);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+    private JButton neoButton(String text, Color bg) {
+        JButton btn = new JButton(text);
+        UITheme.styleButton(btn, bg);
         return btn;
     }
 }

@@ -10,19 +10,15 @@ import javax.swing.plaf.basic.BasicTextFieldUI;
 
 public class FormLogin extends JFrame {
 
-    // ── Dark gold palette ───────────────────────────────────────────────────
-    private static final Color BG1      = new Color(22, 17, 2);
-    private static final Color BG2      = new Color(36, 28, 4);
-    private static final Color BLOB     = new Color(58, 47, 9, 150);
-    private static final Color CARD     = new Color(42, 33, 7);
-    private static final Color CARD_BDR = new Color(72, 58, 14);
-    private static final Color GOLD     = new Color(210, 158, 22);
-    private static final Color GOLD_HI  = new Color(238, 185, 45);
-    private static final Color GOLD_LO  = new Color(168, 122, 12);
-    private static final Color FIELD    = new Color(54, 43, 9);
-    private static final Color FIELD_BD = new Color(160, 124, 28);
-    private static final Color PH_CLR   = new Color(120, 105, 55);
-    private static final Color MUTED    = new Color(165, 150, 105);
+    // ── Neobrutalism palette (Yellow + Neon) ──────────────────────────────
+    private static final Color BG       = new Color(255, 255, 255); // pure white
+    private static final Color BLACK    = new Color(  0,   0,   0);
+    private static final Color YELLOW   = new Color(255, 217,  61); // primary
+    private static final Color LIME     = new Color(180, 255,  57); // neon green
+    private static final Color PINK     = new Color(255,  85, 119);
+    private static final Color PH_CLR   = new Color(140, 140, 140);
+    private static final int   THICK    = 3;
+    private static final int   SHADOW_OFF = 6;
 
     private static final String PH_PASS = "Masukkan password...";
 
@@ -34,58 +30,66 @@ public class FormLogin extends JFrame {
         setTitle("Login — Berkah Jaya");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUndecorated(true);
-        setSize(480, 610);
+        setSize(480, 620);
         setLocationRelativeTo(null);
         initComponents();
     }
 
     private void initComponents() {
-        // ── Background ─────────────────────────────────────────────────────
+        // ── Background (cyan dengan polka-dot subtle) ──────────────────────
         JPanel outer = new JPanel(new GridBagLayout()) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new GradientPaint(0, 0, BG1, getWidth(), getHeight(), BG2));
+                g2.setColor(YELLOW);
                 g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setColor(BLOB);
-                g2.fillOval(-90, -90, 310, 310);
-                g2.fillOval(getWidth() - 190, getHeight() - 190, 290, 290);
+                // dotted pattern
+                g2.setColor(new Color(0, 0, 0, 25));
+                for (int y = 0; y < getHeight(); y += 28) {
+                    for (int x = 0; x < getWidth(); x += 28) {
+                        g2.fillOval(x, y, 4, 4);
+                    }
+                }
                 g2.dispose();
             }
         };
         setContentPane(outer);
         makeDraggable(outer);
 
-        // ── Card ───────────────────────────────────────────────────────────
+        // ── Card (white with thick black border + hard shadow) ─────────────
         JPanel card = new JPanel(new BorderLayout()) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 26, 26);
-                g2.setColor(CARD_BDR);
-                g2.setStroke(new BasicStroke(1.2f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 26, 26);
+                int w = getWidth(), h = getHeight();
+                g2.setColor(BLACK);
+                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.setColor(BG);
+                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
                 g2.dispose();
             }
         };
         card.setOpaque(false);
-        card.setPreferredSize(new Dimension(420, 570));
+        card.setPreferredSize(new Dimension(420, 580));
 
         // ── Close button (top-right) ───────────────────────────────────────
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 10));
         topBar.setOpaque(false);
+        topBar.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, SHADOW_OFF));
         JButton btnX = new JButton("×");
         btnX.setUI(new BasicButtonUI());
-        btnX.setForeground(MUTED);
-        btnX.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        btnX.setForeground(BLACK);
+        btnX.setFont(new Font("Segoe UI", Font.BOLD, 22));
         btnX.setOpaque(false);
         btnX.setBorderPainted(false);
         btnX.setFocusPainted(false);
+        btnX.setContentAreaFilled(false);
         btnX.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnX.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { btnX.setForeground(Color.WHITE); }
-            @Override public void mouseExited(MouseEvent e)  { btnX.setForeground(MUTED); }
+            @Override public void mouseEntered(MouseEvent e) { btnX.setForeground(PINK); }
+            @Override public void mouseExited(MouseEvent e)  { btnX.setForeground(BLACK); }
         });
         btnX.addActionListener(e -> System.exit(0));
         topBar.add(btnX);
@@ -94,70 +98,77 @@ public class FormLogin extends JFrame {
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setOpaque(false);
-        content.setBorder(BorderFactory.createEmptyBorder(4, 42, 36, 42));
+        content.setBorder(BorderFactory.createEmptyBorder(4, 38, 36, 38 + SHADOW_OFF));
 
-        // Lock icon
+        // Lock icon — square block w/ shadow
         JPanel lockIcon = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int w = getWidth(), h = getHeight(), cx = w / 2, cy = h / 2;
-                g2.setPaint(new GradientPaint(0, 0, GOLD_HI, 0, h, GOLD_LO));
-                g2.fillOval(0, 0, w - 1, h - 1);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                g2.drawArc(cx - 9, cy - 18, 18, 16, 0, 180);
-                g2.drawLine(cx - 9, cy - 10, cx - 9, cy - 5);
-                g2.drawLine(cx + 9, cy - 10, cx + 9, cy - 5);
-                g2.drawRoundRect(cx - 13, cy - 5, 26, 20, 5, 5);
-                g2.setStroke(new BasicStroke(1f));
-                g2.fillOval(cx - 3, cy + 2, 6, 6);
+                int w = getWidth(), h = getHeight();
+                int s = SHADOW_OFF;
+                g2.setColor(BLACK);
+                g2.fillRect(s, s, w - s, h - s);
+                g2.setColor(LIME);
+                g2.fillRect(0, 0, w - s, h - s);
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, w - s - THICK, h - s - THICK);
+                // lock symbol
+                int cx = (w - s) / 2, cy = (h - s) / 2;
+                g2.setStroke(new BasicStroke(2.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawArc(cx - 9, cy - 16, 18, 16, 0, 180);
+                g2.drawLine(cx - 9, cy - 8, cx - 9, cy - 3);
+                g2.drawLine(cx + 9, cy - 8, cx + 9, cy - 3);
+                g2.drawRoundRect(cx - 13, cy - 3, 26, 20, 4, 4);
+                g2.fillOval(cx - 3, cy + 4, 6, 6);
                 g2.dispose();
             }
         };
         lockIcon.setOpaque(false);
-        lockIcon.setPreferredSize(new Dimension(64, 64));
-        lockIcon.setMaximumSize(new Dimension(64, 64));
+        lockIcon.setPreferredSize(new Dimension(70, 70));
+        lockIcon.setMaximumSize(new Dimension(70, 70));
         lockIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblTitle = new JLabel("Selamat Datang");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        lblTitle.setForeground(Color.WHITE);
+        JLabel lblTitle = new JLabel("SELAMAT DATANG");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitle.setForeground(BLACK);
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblSub = new JLabel("Masuk untuk melanjutkan");
-        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblSub.setForeground(MUTED);
+        lblSub.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblSub.setForeground(BLACK);
         lblSub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Username field
-        JLabel lUser = goldLabel("Username");
+        // Username
+        JLabel lUser = neoLabel("USERNAME");
         txtUsername = buildTextField();
         txtUsername.setAlignmentX(Component.CENTER_ALIGNMENT);
-        txtUsername.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
+        txtUsername.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-        // Password field
-        JLabel lPass = goldLabel("Password");
+        // Password
+        JLabel lPass = neoLabel("PASSWORD");
         txtPassword = buildPasswordField();
         txtPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
-        txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
+        txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         txtPassword.addActionListener(e -> doLogin());
 
         // Masuk button
-        JButton btnLogin = buildGoldButton("Masuk");
+        JButton btnLogin = buildNeoButton("MASUK", LIME);
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnLogin.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
+        btnLogin.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
         btnLogin.addActionListener(e -> doLogin());
 
         // "Lupa password?" link
         JLabel lblForgot = new JLabel("Lupa password?", SwingConstants.CENTER);
-        lblForgot.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblForgot.setForeground(GOLD);
+        lblForgot.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblForgot.setForeground(BLACK);
         lblForgot.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         lblForgot.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblForgot.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { lblForgot.setForeground(GOLD_HI); }
-            @Override public void mouseExited(MouseEvent e)  { lblForgot.setForeground(GOLD); }
+            @Override public void mouseEntered(MouseEvent e) { lblForgot.setForeground(PINK); }
+            @Override public void mouseExited(MouseEvent e)  { lblForgot.setForeground(BLACK); }
             @Override public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(FormLogin.this,
                     "Hubungi administrator untuk reset password.",
@@ -166,21 +177,21 @@ public class FormLogin extends JFrame {
         });
 
         content.add(lockIcon);
-        content.add(Box.createRigidArea(new Dimension(0, 18)));
-        content.add(lblTitle);
-        content.add(Box.createRigidArea(new Dimension(0, 6)));
-        content.add(lblSub);
-        content.add(Box.createRigidArea(new Dimension(0, 34)));
-        content.add(lUser);
-        content.add(Box.createRigidArea(new Dimension(0, 8)));
-        content.add(txtUsername);
-        content.add(Box.createRigidArea(new Dimension(0, 18)));
-        content.add(lPass);
-        content.add(Box.createRigidArea(new Dimension(0, 8)));
-        content.add(txtPassword);
-        content.add(Box.createRigidArea(new Dimension(0, 30)));
-        content.add(btnLogin);
         content.add(Box.createRigidArea(new Dimension(0, 16)));
+        content.add(lblTitle);
+        content.add(Box.createRigidArea(new Dimension(0, 4)));
+        content.add(lblSub);
+        content.add(Box.createRigidArea(new Dimension(0, 26)));
+        content.add(lUser);
+        content.add(Box.createRigidArea(new Dimension(0, 6)));
+        content.add(txtUsername);
+        content.add(Box.createRigidArea(new Dimension(0, 14)));
+        content.add(lPass);
+        content.add(Box.createRigidArea(new Dimension(0, 6)));
+        content.add(txtPassword);
+        content.add(Box.createRigidArea(new Dimension(0, 24)));
+        content.add(btnLogin);
+        content.add(Box.createRigidArea(new Dimension(0, 14)));
         content.add(lblForgot);
 
         card.add(topBar,  BorderLayout.NORTH);
@@ -190,10 +201,10 @@ public class FormLogin extends JFrame {
 
     // ── Helpers ─────────────────────────────────────────────────────────────
 
-    private JLabel goldLabel(String text) {
+    private JLabel neoLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(GOLD);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lbl.setForeground(BLACK);
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
         lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
         return lbl;
@@ -203,22 +214,26 @@ public class FormLogin extends JFrame {
         JTextField f = new JTextField() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(FIELD);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
-                g2.setColor(isFocusOwner() ? GOLD : FIELD_BD);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                int w = getWidth(), h = getHeight();
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, w, h);
                 g2.dispose();
                 super.paintComponent(g);
             }
-            @Override protected void paintBorder(Graphics g) {}
+            @Override protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, getWidth() - THICK, getHeight() - THICK);
+                g2.dispose();
+            }
         };
         f.setUI(new BasicTextFieldUI());
         f.setOpaque(false);
-        f.setForeground(Color.WHITE);
-        f.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        f.setCaretColor(GOLD);
+        f.setForeground(BLACK);
+        f.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        f.setCaretColor(BLACK);
         f.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
         return f;
     }
@@ -227,30 +242,33 @@ public class FormLogin extends JFrame {
         JPasswordField f = new JPasswordField() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(FIELD);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
-                g2.setColor(isFocusOwner() ? GOLD : FIELD_BD);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
                 g2.dispose();
                 super.paintComponent(g);
             }
-            @Override protected void paintBorder(Graphics g) {}
+            @Override protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(t, t, getWidth() - THICK, getHeight() - THICK);
+                g2.dispose();
+            }
         };
         f.setUI(new BasicPasswordFieldUI());
         f.setOpaque(false);
         f.setEchoChar((char) 0);
         f.setText(PH_PASS);
         f.setForeground(PH_CLR);
-        f.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        f.setCaretColor(GOLD);
+        f.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        f.setCaretColor(BLACK);
         f.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
         f.addFocusListener(new FocusAdapter() {
             @Override public void focusGained(FocusEvent e) {
                 if (new String(f.getPassword()).equals(PH_PASS)) {
                     f.setText("");
-                    f.setForeground(Color.WHITE);
+                    f.setForeground(BLACK);
                     f.setEchoChar('•');
                 }
             }
@@ -265,33 +283,54 @@ public class FormLogin extends JFrame {
         return f;
     }
 
-    private JButton buildGoldButton(String text) {
+    private JButton buildNeoButton(String text, Color bg) {
         JButton btn = new JButton(text) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Color top = getModel().isPressed() ? GOLD_LO  : GOLD_HI;
-                Color bot = getModel().isPressed() ? GOLD_LO.darker() : GOLD_LO;
-                if (getModel().isRollover() && !getModel().isPressed()) {
-                    top = GOLD_HI.brighter();
-                    bot = GOLD;
+                int w = getWidth(), h = getHeight();
+                int s = SHADOW_OFF;
+                boolean pressed = getModel().isPressed();
+                boolean hover   = getModel().isRollover();
+
+                if (!pressed) {
+                    g2.setColor(BLACK);
+                    g2.fillRect(s, s, w - s, h - s);
                 }
-                g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bot));
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
+                int dx = pressed ? s : 0;
+                int dy = pressed ? s : 0;
+                Color fill = bg;
+                if (hover && !pressed) fill = brighten(bg, 18);
+                g2.setColor(fill);
+                g2.fillRect(dx, dy, w - s, h - s);
+                g2.setColor(BLACK);
+                g2.setStroke(new BasicStroke(THICK));
+                int t = THICK / 2;
+                g2.drawRect(dx + t, dy + t, w - s - THICK, h - s - THICK);
                 g2.dispose();
-                super.paintComponent(g);
+                Graphics2D gt = (Graphics2D) g.create();
+                if (pressed) gt.translate(s, s);
+                super.paintComponent(gt);
+                gt.dispose();
             }
             @Override protected void paintBorder(Graphics g) {}
         };
         btn.setUI(new BasicButtonUI());
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setForeground(BLACK);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 17));
         btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(12, 22, 12, 22));
+        btn.setBorder(BorderFactory.createEmptyBorder(12, 22, 12 + SHADOW_OFF, 22 + SHADOW_OFF));
         return btn;
+    }
+
+    private Color brighten(Color c, int amount) {
+        return new Color(
+            Math.min(255, c.getRed()   + amount),
+            Math.min(255, c.getGreen() + amount),
+            Math.min(255, c.getBlue()  + amount));
     }
 
     private void makeDraggable(JPanel panel) {
