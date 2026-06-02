@@ -6,11 +6,13 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 public class FormUtama extends JFrame {
 
+    private FormDashboard panelDashboard;
     private FormBarang    panelBarang;
     private FormCustomer  panelCustomer;
     private FormTransaksi panelTransaksi;
     private FormLaporan   panelLaporan;
     private FormMember    panelMember;
+    private FormUser      panelUser;
 
     private JPanel     cardPanel;
     private CardLayout cardLayout;
@@ -183,10 +185,12 @@ public class FormUtama extends JFrame {
         sidebar.add(lMenu);
 
         if ("Admin".equals(Session.level)) {
-            activeNavBtn = navBtn(sidebar, "Barang");
+            activeNavBtn = navBtn(sidebar, "Dashboard");
+                           navBtn(sidebar, "Barang");
                            navBtn(sidebar, "Customer");
                            navBtn(sidebar, "Transaksi");
                            navBtn(sidebar, "Laporan");
+                           navBtn(sidebar, "User");
         } else {
             activeNavBtn = navBtn(sidebar, "Member");
                            navBtn(sidebar, "Transaksi");
@@ -286,6 +290,12 @@ public class FormUtama extends JFrame {
                 g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
                 switch (name) {
+                    case "Dashboard" -> {
+                        g2.drawRect(x+3,  y+3,  7, 7);
+                        g2.drawRect(x+14, y+3,  7, 7);
+                        g2.drawRect(x+3,  y+14, 7, 7);
+                        g2.drawRect(x+14, y+14, 7, 7);
+                    }
                     case "Barang" -> {
                         g2.drawRoundRect(x+3, y+5, 18, 14, 2, 2);
                         g2.drawLine(x+3,  y+11, x+21, y+11);
@@ -313,6 +323,13 @@ public class FormUtama extends JFrame {
                         g2.drawOval(x+13, y+3,  8, 8);
                         g2.drawArc( x+11, y+13, 12, 8, 0, 180);
                     }
+                    case "User" -> {
+                        g2.drawOval(x+8, y+3, 8, 8);
+                        g2.drawArc( x+4, y+13, 16, 9, 0, 180);
+                        // gear/admin accent
+                        g2.drawLine(x+18, y+2, x+18, y+6);
+                        g2.drawLine(x+16, y+4, x+20, y+4);
+                    }
                 }
                 g2.dispose();
             }
@@ -337,14 +354,18 @@ public class FormUtama extends JFrame {
         cardPanel.setBackground(BG);
 
         if ("Admin".equals(Session.level)) {
+            panelDashboard = new FormDashboard();
             panelBarang    = new FormBarang();
             panelCustomer  = new FormCustomer();
             panelTransaksi = new FormTransaksi();
             panelLaporan   = new FormLaporan();
+            panelUser      = new FormUser();
+            cardPanel.add(panelDashboard, "Dashboard");
             cardPanel.add(panelBarang,    "Barang");
             cardPanel.add(panelCustomer,  "Customer");
             cardPanel.add(panelTransaksi, "Transaksi");
             cardPanel.add(panelLaporan,   "Laporan");
+            cardPanel.add(panelUser,      "User");
         } else {
             panelMember    = new FormMember();
             panelTransaksi = new FormTransaksi();
@@ -360,11 +381,13 @@ public class FormUtama extends JFrame {
 
     private void refreshPanel(String name) {
         switch (name) {
+            case "Dashboard" -> { if (panelDashboard != null) panelDashboard.refresh(); }
             case "Barang"    -> { if (panelBarang    != null) panelBarang.refresh(); }
             case "Customer"  -> { if (panelCustomer  != null) panelCustomer.refresh(); }
             case "Transaksi" -> { if (panelTransaksi != null) panelTransaksi.refresh(); }
             case "Laporan"   -> { if (panelLaporan   != null) panelLaporan.refresh(); }
             case "Member"    -> { if (panelMember    != null) panelMember.refresh(); }
+            case "User"      -> { if (panelUser      != null) panelUser.refresh(); }
         }
     }
 

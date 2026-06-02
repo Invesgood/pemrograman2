@@ -146,22 +146,12 @@ public class FormDaftarMember extends JPanel {
     }
 
     private void daftarMember() {
+        if (!Validasi.isNama(this, txtNama, "Nama lengkap")) return;
+        if (!Validasi.isTelepon(this, txtTelepon, "No. telepon", true)) return;
         String nama    = txtNama.getText().trim();
         String alamat  = txtAlamat.getText().trim();
         String telepon = txtTelepon.getText().trim();
-
-        if (nama.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Nama lengkap harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtNama.requestFocus();
-            return;
-        }
-        if (telepon.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Nomor telepon harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtTelepon.requestFocus();
-            return;
-        }
+        if (!Validasi.teleponBelumDipakai(this, telepon, null)) return;
 
         String newId = generateNextId();
         if (newId == null) return;

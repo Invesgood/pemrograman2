@@ -152,6 +152,26 @@ public class UITheme {
         cb.setForeground(TEXT_MAIN);
         cb.setBackground(Color.WHITE);
         cb.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICK));
+        // Custom renderer: highlight item dengan kuning tema + teks hitam,
+        // supaya tidak silau seperti default neon-green/teks putih.
+        cb.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setFont(FONT_BOLD);
+                setBorder(BorderFactory.createEmptyBorder(5, 9, 5, 9));
+                if (isSelected) {
+                    setBackground(PRIMARY);        // yellow
+                    setForeground(BORDER_COLOR);   // black text
+                } else {
+                    setBackground(Color.WHITE);
+                    setForeground(TEXT_MAIN);
+                }
+                setOpaque(true);
+                return this;
+            }
+        });
     }
 
     /** Walk container tree and apply neobrutalism styling to input components. */

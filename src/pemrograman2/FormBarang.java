@@ -196,33 +196,11 @@ public class FormBarang extends JPanel {
     }
 
     private boolean validasiInput() {
-        if (txtNama.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama barang harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        String kategori = txtKategori.getText().trim();
-        if (kategori.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Kategori harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtKategori.requestFocus();
-            return false;
-        }
-        if (!kategori.matches("[A-Za-z ]+")) {
-            JOptionPane.showMessageDialog(this,
-                    "Kategori harus huruf aja, gaboleh ada angka atau simbol!",
-                    "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtKategori.requestFocus();
-            return false;
-        }
-        try { Double.parseDouble(txtHarga.getText().trim()); }
-        catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Harga jual harus berupa angka!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        try { Integer.parseInt(txtStok.getText().trim()); }
-        catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Stok harus berupa angka bulat!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
+        // Nama barang boleh alfanumerik (mis. "Air Mineral 600ml"), cukup wajib diisi.
+        if (!Validasi.notEmpty(this, txtNama, "Nama barang")) return false;
+        if (!Validasi.isNama(this, txtKategori, "Kategori")) return false;
+        if (!Validasi.isDoubleTakNegatif(this, txtHarga, "Harga jual")) return false;
+        if (!Validasi.isIntTakNegatif(this, txtStok, "Stok")) return false;
         return true;
     }
 

@@ -56,15 +56,15 @@ public class FormLaporan extends JPanel {
 
         // ── Table ────────────────────────────────────────────────────────────
         tableModel = new DefaultTableModel(
-                new String[]{"ID Jual", "Tanggal", "ID Customer", "Nama Customer",
-                             "Nama Barang", "Satuan", "Qty", "Harga Satuan (Rp)", "Total Bayar (Rp)", "Kasir"}, 0) {
+                new String[]{"ID Jual", "No. Faktur", "Tanggal", "ID Customer", "Nama Customer",
+                             "Nama Barang", "Satuan", "Qty", "Harga Satuan (Rp)", "Subtotal (Rp)", "Kasir"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tblLaporan = new JTable(tableModel);
         tblLaporan.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         UITheme.styleTable(tblLaporan);
         // Atur lebar kolom
-        int[] widths = {60, 90, 90, 140, 140, 65, 45, 130, 130, 110};
+        int[] widths = {60, 90, 90, 90, 140, 140, 65, 45, 130, 130, 110};
         for (int i = 0; i < widths.length; i++) {
             tblLaporan.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -115,15 +115,16 @@ public class FormLaporan extends JPanel {
         if (con == null) return;
 
         StringBuilder sql = new StringBuilder(
-                "SELECT p.id_jual, p.tgl_transaksi, " +
+                "SELECT p.id_jual, p.no_faktur, p.tgl_transaksi, " +
                 "c.id_customer, c.nama_customer, " +
                 "b.nama_barang, b.satuan, " +
-                "p.jumlah_beli, b.harga_jual, p.total_bayar, " +
+                "d.jumlah_beli, d.harga_satuan, d.subtotal, " +
                 "u.nama_lengkap " +
                 "FROM tb_penjualan p " +
-                "LEFT JOIN tb_customer c ON p.id_customer = c.id_customer " +
-                "JOIN tb_barang        b ON p.id_barang   = b.id_barang " +
-                "JOIN tb_user          u ON p.id_user     = u.id_user ");
+                "JOIN tb_detail_penjualan d ON p.id_jual     = d.id_jual " +
+                "LEFT JOIN tb_customer     c ON p.id_customer = c.id_customer " +
+                "JOIN tb_barang            b ON d.id_barang   = b.id_barang " +
+                "JOIN tb_user              u ON p.id_user     = u.id_user ");
 
         boolean hasFilter = (tglMulai != null && !tglMulai.isEmpty())
                          || (tglSelesai != null && !tglSelesai.isEmpty());
@@ -137,7 +138,7 @@ public class FormLaporan extends JPanel {
                 sql.append("WHERE p.tgl_transaksi <= ? ");
             }
         }
-        sql.append("ORDER BY p.tgl_transaksi DESC, p.id_jual DESC");
+        sql.append("ORDER BY p.tgl_transaksi DESC, p.id_jual DESC, d.id_detail");
 
         try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
             if (hasFilter) {
@@ -154,27 +155,30 @@ public class FormLaporan extends JPanel {
             double totalPendapatan = 0;
             int    jmlTransaksi    = 0;
 
+            java.util.Set<Integer> fakturSet = new java.util.HashSet<>();
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    double totalBayar = rs.getDouble("total_bayar");
-                    totalPendapatan += totalBayar;
-                    jmlTransaksi++;
+                    double subtotal = rs.getDouble("subtotal");
+                    totalPendapatan += subtotal;
+                    fakturSet.add(rs.getInt("id_jual"));
                     String idCust   = rs.getString("id_customer");
                     String namaCust = rs.getString("nama_customer");
                     tableModel.addRow(new Object[]{
                         rs.getInt("id_jual"),
+                        rs.getString("no_faktur"),
                         rs.getString("tgl_transaksi"),
                         idCust   != null ? idCust   : "-",
                         namaCust != null ? namaCust : "Non-Member",
                         rs.getString("nama_barang"),
                         rs.getString("satuan"),
                         rs.getInt("jumlah_beli"),
-                        String.format("%,.0f", rs.getDouble("harga_jual")),
-                        String.format("%,.0f", totalBayar),
+                        String.format("%,.0f", rs.getDouble("harga_satuan")),
+                        String.format("%,.0f", subtotal),
                         rs.getString("nama_lengkap")
                     });
                 }
             }
+            jmlTransaksi = fakturSet.size();
 
             lblJmlTransaksi.setText("Jumlah Transaksi: " + jmlTransaksi);
             lblTotalPendapatan.setText("Total Pendapatan: Rp " + String.format("%,.0f", totalPendapatan));

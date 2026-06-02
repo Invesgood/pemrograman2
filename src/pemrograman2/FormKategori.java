@@ -133,10 +133,24 @@ public class FormKategori extends JPanel {
         btnHapus.setEnabled(true);
     }
 
+    /** Cek nama kategori sudah ada (case-insensitive). exceptId = -1 untuk data baru. */
+    private boolean namaKategoriDuplikat(String nama, int exceptId) {
+        Connection con = Koneksi.getKoneksi();
+        if (con == null) return false;
+        try (PreparedStatement ps = con.prepareStatement(
+                "SELECT id_kategori FROM tb_kategori WHERE LOWER(nama_kategori) = LOWER(?) AND id_kategori <> ?")) {
+            ps.setString(1, nama);
+            ps.setInt(2, exceptId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (SQLException e) { showError(e); return false; }
+    }
+
     private void simpan() {
+        if (!Validasi.isNama(this, txtNamaKategori, "Nama kategori")) return;
         String nama = txtNamaKategori.getText().trim();
-        if (nama.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama kategori harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        if (namaKategoriDuplikat(nama, -1)) {
+            JOptionPane.showMessageDialog(this, "Kategori \"" + nama + "\" sudah ada!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            txtNamaKategori.requestFocus();
             return;
         }
         Connection con = Koneksi.getKoneksi();
@@ -155,9 +169,12 @@ public class FormKategori extends JPanel {
 
     private void ubah() {
         if (!isEdit) return;
+        if (!Validasi.isNama(this, txtNamaKategori, "Nama kategori")) return;
         String nama = txtNamaKategori.getText().trim();
-        if (nama.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama kategori harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        int idKat = Integer.parseInt(txtIdKategori.getText());
+        if (namaKategoriDuplikat(nama, idKat)) {
+            JOptionPane.showMessageDialog(this, "Kategori \"" + nama + "\" sudah ada!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            txtNamaKategori.requestFocus();
             return;
         }
         Connection con = Koneksi.getKoneksi();

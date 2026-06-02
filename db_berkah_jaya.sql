@@ -42,18 +42,28 @@ CREATE TABLE IF NOT EXISTS tb_user (
     level       ENUM('Admin','Petugas') DEFAULT 'Petugas'
 ) ENGINE=InnoDB;
 
--- Tabel Penjualan
+-- Tabel Penjualan (header / faktur)
 CREATE TABLE IF NOT EXISTS tb_penjualan (
     id_jual       INT    PRIMARY KEY AUTO_INCREMENT,
+    no_faktur     VARCHAR(20),
     tgl_transaksi DATE,
     id_customer   VARCHAR(10),
-    id_barang     VARCHAR(10),
-    jumlah_beli   INT    DEFAULT 0,
     total_bayar   DOUBLE DEFAULT 0,
     id_user       INT,
     FOREIGN KEY (id_customer) REFERENCES tb_customer(id_customer),
-    FOREIGN KEY (id_barang)   REFERENCES tb_barang(id_barang),
     FOREIGN KEY (id_user)     REFERENCES tb_user(id_user)
+) ENGINE=InnoDB;
+
+-- Tabel Detail Penjualan (item per faktur)
+CREATE TABLE IF NOT EXISTS tb_detail_penjualan (
+    id_detail    INT          PRIMARY KEY AUTO_INCREMENT,
+    id_jual      INT,
+    id_barang    VARCHAR(10),
+    harga_satuan DOUBLE       DEFAULT 0,
+    jumlah_beli  INT          DEFAULT 0,
+    subtotal     DOUBLE       DEFAULT 0,
+    FOREIGN KEY (id_jual)   REFERENCES tb_penjualan(id_jual) ON DELETE CASCADE,
+    FOREIGN KEY (id_barang) REFERENCES tb_barang(id_barang)
 ) ENGINE=InnoDB;
 
 -- =============== Data Awal ===============

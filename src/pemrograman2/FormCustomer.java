@@ -315,22 +315,11 @@ public class FormCustomer extends JPanel {
     }
 
     private void simpan() {
-        String nama = txtNama.getText().trim();
-        if (nama.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama customer harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (!nama.matches("[a-zA-Z\\s]+")) {
-            JOptionPane.showMessageDialog(this, "Nama customer hanya boleh berisi huruf!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtNama.requestFocus();
-            return;
-        }
+        if (!Validasi.isNama(this, txtNama, "Nama customer")) return;
+        if (!Validasi.isTelepon(this, txtTelepon, "No. telepon", true)) return;
+        String nama    = txtNama.getText().trim();
         String telepon = txtTelepon.getText().trim();
-        if (!telepon.isEmpty() && !telepon.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "No. telepon hanya boleh berisi angka!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtTelepon.requestFocus();
-            return;
-        }
+        if (!Validasi.teleponBelumDipakai(this, telepon, null)) return;
         String newId = generateNextId();
         Connection con = Koneksi.getKoneksi();
         if (con == null) return;
@@ -350,22 +339,11 @@ public class FormCustomer extends JPanel {
 
     private void ubah() {
         if (!isEdit) return;
-        String nama = txtNama.getText().trim();
-        if (nama.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama customer harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (!nama.matches("[a-zA-Z\\s]+")) {
-            JOptionPane.showMessageDialog(this, "Nama customer hanya boleh berisi huruf!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtNama.requestFocus();
-            return;
-        }
+        if (!Validasi.isNama(this, txtNama, "Nama customer")) return;
+        if (!Validasi.isTelepon(this, txtTelepon, "No. telepon", true)) return;
+        String nama    = txtNama.getText().trim();
         String telepon = txtTelepon.getText().trim();
-        if (!telepon.isEmpty() && !telepon.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "No. telepon hanya boleh berisi angka!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            txtTelepon.requestFocus();
-            return;
-        }
+        if (!Validasi.teleponBelumDipakai(this, telepon, txtId.getText())) return;
         Connection con = Koneksi.getKoneksi();
         if (con == null) return;
         try (PreparedStatement ps = con.prepareStatement(
