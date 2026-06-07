@@ -56,8 +56,8 @@ public class FormTransaksi extends JPanel {
     private DefaultTableModel  tableModel;
 
     public FormTransaksi() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
     }
 
@@ -77,9 +77,9 @@ public class FormTransaksi extends JPanel {
         g.anchor = GridBagConstraints.WEST;
 
         // ── Tanggal ──────────────────────────────────────────────────────────
-        txtTanggal = new JTextField(new SimpleDateFormat("yyyy-MM-dd").format(new Date()), 12);
+        txtTanggal = new JTextField(Validasi.hariIni(), 12);
         txtTanggal.setEditable(false);
-        txtTanggal.setBackground(new Color(235, 240, 250));
+        txtTanggal.setBackground(UITheme.NEUTRAL);
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         inputPanel.add(boldLabel("Tanggal:"), g);
@@ -141,9 +141,10 @@ public class FormTransaksi extends JPanel {
         // ── Harga & Jumlah ───────────────────────────────────────────────────
         txtHarga = new JTextField("0", 12);
         txtHarga.setEditable(false);
-        txtHarga.setBackground(new Color(235, 240, 250));
+        txtHarga.setBackground(UITheme.NEUTRAL);
 
         txtJumlah = new JTextField(6);
+        Validasi.hanyaAngka(txtJumlah);   // tolak huruf/simbol saat diketik
 
         g.gridx = 0; g.gridy = 3; g.weightx = 0;
         inputPanel.add(boldLabel("Harga Satuan (Rp):"), g);
@@ -157,7 +158,7 @@ public class FormTransaksi extends JPanel {
         // ── Subtotal item ────────────────────────────────────────────────────
         txtTotal = new JTextField("0", 12);
         txtTotal.setEditable(false);
-        txtTotal.setBackground(new Color(220, 255, 220));
+        txtTotal.setBackground(UITheme.PRIMARY_LIGHT);
         txtTotal.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         JLabel lblTotalLbl = new JLabel("Subtotal Item (Rp):");
@@ -269,6 +270,7 @@ public class FormTransaksi extends JPanel {
 
         txtTelpCari = new JTextField(16);
         txtTelpCari.setFont(UITheme.FONT_BODY);
+        Validasi.hanyaAngka(txtTelpCari);  // cari member by telepon: angka saja
         txtTelpCari.setToolTipText("Masukkan nomor telepon member, lalu tekan Enter atau klik Cari");
 
         btnCariMember = new JButton("Cari");
@@ -361,7 +363,7 @@ public class FormTransaksi extends JPanel {
         int    sisa   = sisaStok(idx);   // stok DB dikurangi yang sudah di keranjang
         String satuan = barangSatuanList.get(idx);
 
-        txtHarga.setText(String.format("%.0f", harga));
+        txtHarga.setText(Validasi.rupiah(harga));
 
         String stokColor = sisa > 10 ? "green" : (sisa > 0 ? "orange" : "red");
         lblStokInfo.setText("<html>Stok: <b><font color='" + stokColor + "'>" +
@@ -401,7 +403,7 @@ public class FormTransaksi extends JPanel {
         try {
             double harga  = Double.parseDouble(txtHarga.getText().trim().replaceAll("[^0-9]", ""));
             int    jumlah = Integer.parseInt(txtJumlah.getText().trim());
-            txtTotal.setText(String.format("%,.0f", harga * jumlah));
+            txtTotal.setText(Validasi.rupiah(harga * jumlah));
         } catch (NumberFormatException e) {
             txtTotal.setText("0");
         }
@@ -510,12 +512,12 @@ public class FormTransaksi extends JPanel {
             keranjangModel.addRow(new Object[]{
                 c.idBarang,
                 c.namaBarang,
-                String.format("%,.0f", c.harga),
+                Validasi.rupiah(c.harga),
                 c.jumlah + (c.satuan != null && !c.satuan.isEmpty() ? " " + c.satuan : ""),
-                String.format("%,.0f", c.subtotal())
+                Validasi.rupiah(c.subtotal())
             });
         }
-        lblGrandTotal.setText("TOTAL BAYAR: Rp " + String.format("%,.0f", grand));
+        lblGrandTotal.setText("TOTAL BAYAR: Rp " + Validasi.rupiah(grand));
         refreshComboStok();   // tampilan sisa stok ikut menyesuaikan isi keranjang
     }
 
@@ -525,7 +527,7 @@ public class FormTransaksi extends JPanel {
         loadBarang();
         refreshComboStok();   // sesuaikan tampilan stok dengan isi keranjang (bila ada)
         loadRiwayat();
-        txtTanggal.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        txtTanggal.setText(Validasi.hariIni());
     }
 
     private void loadBarang() {
@@ -577,12 +579,12 @@ public class FormTransaksi extends JPanel {
                 tableModel.addRow(new Object[]{
                     rs.getInt("id_jual"),
                     rs.getString("no_faktur"),
-                    rs.getString("tgl_transaksi"),
+                    Validasi.tglTampil(rs.getString("tgl_transaksi")),
                     nama != null ? nama : "Non-Member",
                     rs.getString("nama_barang"),
                     rs.getInt("jumlah_beli"),
-                    String.format("%,.0f", rs.getDouble("harga_satuan")),
-                    String.format("%,.0f", rs.getDouble("subtotal"))
+                    Validasi.rupiah(rs.getDouble("harga_satuan")),
+                    Validasi.rupiah(rs.getDouble("subtotal"))
                 });
             }
         } catch (SQLException e) {
@@ -716,9 +718,9 @@ public class FormTransaksi extends JPanel {
                     "No. Faktur : <b>" + String.format("INV-%04d", idJual) + "</b><br>" +
                     "Customer   : <b>" + (idCustomer != null ? foundCustomerNama : "Non-Member") + "</b><br>" +
                     "Jumlah Item: <b>" + keranjang.size() + " jenis barang</b><br>" +
-                    "Total      : <b>Rp " + String.format("%,.0f", total) + "</b><br>" +
-                    "Tunai      : <b>Rp " + String.format("%,.0f", uangBayar) + "</b><br>" +
-                    "Kembalian  : <b>Rp " + String.format("%,.0f", kembalian) + "</b></html>",
+                    "Total      : <b>Rp " + Validasi.rupiah(total) + "</b><br>" +
+                    "Tunai      : <b>Rp " + Validasi.rupiah(uangBayar) + "</b><br>" +
+                    "Kembalian  : <b>Rp " + Validasi.rupiah(kembalian) + "</b></html>",
                     "Transaksi Sukses", JOptionPane.INFORMATION_MESSAGE);
 
             bersihkan();
@@ -739,8 +741,9 @@ public class FormTransaksi extends JPanel {
     private Double mintaPembayaran(double total) {
         JTextField txtBayar = new JTextField(14);
         txtBayar.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        Validasi.formatRibuan(txtBayar);   // angka + titik ribuan otomatis
 
-        JLabel lblTotalVal = new JLabel("Rp " + String.format("%,.0f", total));
+        JLabel lblTotalVal = new JLabel("Rp " + Validasi.rupiah(total));
         lblTotalVal.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
         JLabel lblKembalianVal = new JLabel("Rp 0");
@@ -751,7 +754,7 @@ public class FormTransaksi extends JPanel {
             try {
                 double bayar   = Double.parseDouble(txtBayar.getText().trim().replaceAll("[^0-9]", ""));
                 double kembali = bayar - total;
-                lblKembalianVal.setText("Rp " + String.format("%,.0f", kembali));
+                lblKembalianVal.setText("Rp " + Validasi.rupiah(kembali));
                 lblKembalianVal.setForeground(kembali < 0 ? UITheme.DANGER : new Color(0, 140, 0));
             } catch (NumberFormatException ex) {
                 lblKembalianVal.setText("Rp 0");
@@ -810,9 +813,9 @@ public class FormTransaksi extends JPanel {
             if (bayar < total) {
                 JOptionPane.showMessageDialog(this,
                         "<html>Uang yang dibayar kurang!<br>" +
-                        "Total    : <b>Rp " + String.format("%,.0f", total) + "</b><br>" +
-                        "Dibayar  : <b>Rp " + String.format("%,.0f", bayar) + "</b><br>" +
-                        "Kurang   : <b>Rp " + String.format("%,.0f", total - bayar) + "</b></html>",
+                        "Total    : <b>Rp " + Validasi.rupiah(total) + "</b><br>" +
+                        "Dibayar  : <b>Rp " + Validasi.rupiah(bayar) + "</b><br>" +
+                        "Kurang   : <b>Rp " + Validasi.rupiah(total - bayar) + "</b></html>",
                         "Pembayaran Kurang", JOptionPane.WARNING_MESSAGE);
                 continue;
             }

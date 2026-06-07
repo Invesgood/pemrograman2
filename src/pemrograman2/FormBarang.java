@@ -16,8 +16,8 @@ public class FormBarang extends JPanel {
     private boolean isEdit = false;
 
     public FormBarang() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         loadData();
     }
@@ -34,7 +34,7 @@ public class FormBarang extends JPanel {
         inputPanel.setBorder(UITheme.titledBorder("Form Input Barang"));
         GridBagConstraints g = new GridBagConstraints();
         g.fill   = GridBagConstraints.HORIZONTAL;
-        g.insets = new Insets(4, 8, 4, 8);
+        g.insets = new Insets(7, 10, 7, 10);
 
         txtId       = new JTextField(10);
         txtNama     = new JTextField(20);
@@ -45,6 +45,12 @@ public class FormBarang extends JPanel {
 
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);
+
+        // Filter ketik sesuai jenis data (nama barang dibiarkan alfanumerik bebas)
+        Validasi.hanyaHuruf(txtKategori);   // kategori: huruf & spasi
+        Validasi.hanyaHuruf(txtSatuan);     // satuan: huruf (pcs, kg, liter)
+        Validasi.formatRibuan(txtHarga);    // harga: angka bulat + titik ribuan
+        Validasi.hanyaAngka(txtStok);       // stok: bilangan bulat
 
         // Row 0: ID Barang | Kategori
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
@@ -154,7 +160,7 @@ public class FormBarang extends JPanel {
                     rs.getString("nama_kategori"),
                     rs.getString("nama_barang"),
                     rs.getString("satuan"),
-                    String.format("%,.0f", rs.getDouble("harga_jual")),
+                    Validasi.rupiah(rs.getDouble("harga_jual")),
                     rs.getInt("stok")
                 });
             }
@@ -199,6 +205,7 @@ public class FormBarang extends JPanel {
         // Nama barang boleh alfanumerik (mis. "Air Mineral 600ml"), cukup wajib diisi.
         if (!Validasi.notEmpty(this, txtNama, "Nama barang")) return false;
         if (!Validasi.isNama(this, txtKategori, "Kategori")) return false;
+        if (!Validasi.isNama(this, txtSatuan, "Satuan")) return false;
         if (!Validasi.isDoubleTakNegatif(this, txtHarga, "Harga jual")) return false;
         if (!Validasi.isIntTakNegatif(this, txtStok, "Stok")) return false;
         return true;
@@ -228,7 +235,7 @@ public class FormBarang extends JPanel {
     private void simpan() {
         if (!validasiInput()) return;
         String newId    = generateNextId();
-        double harga    = Double.parseDouble(txtHarga.getText().trim());
+        double harga    = Double.parseDouble(txtHarga.getText().replaceAll("[^0-9]", ""));
         int    stok     = Integer.parseInt(txtStok.getText().trim());
 
         Connection con = Koneksi.getKoneksi();
@@ -256,7 +263,7 @@ public class FormBarang extends JPanel {
 
     private void ubah() {
         if (!isEdit || !validasiInput()) return;
-        double harga = Double.parseDouble(txtHarga.getText().trim());
+        double harga = Double.parseDouble(txtHarga.getText().replaceAll("[^0-9]", ""));
         int    stok  = Integer.parseInt(txtStok.getText().trim());
 
         Connection con = Koneksi.getKoneksi();

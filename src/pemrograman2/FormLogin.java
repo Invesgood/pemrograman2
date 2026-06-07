@@ -10,15 +10,17 @@ import javax.swing.plaf.basic.BasicTextFieldUI;
 
 public class FormLogin extends JFrame {
 
-    // ── Neobrutalism palette (Yellow + Neon) ──────────────────────────────
-    private static final Color BG       = new Color(255, 255, 255); // pure white
-    private static final Color BLACK    = new Color(  0,   0,   0);
-    private static final Color YELLOW   = new Color(255, 217,  61); // primary
-    private static final Color LIME     = new Color(180, 255,  57); // neon green
-    private static final Color PINK     = new Color(255,  85, 119);
-    private static final Color PH_CLR   = new Color(140, 140, 140);
-    private static final int   THICK    = 3;
-    private static final int   SHADOW_OFF = 6;
+    // ── Soft neobrutalism palette (warm yellow + pastel) ──────────────────
+    private static final Color BG       = new Color(255, 255, 255); // card white
+    private static final Color BLACK    = new Color( 38,  38,  48); // charcoal
+    private static final Color YELLOW   = new Color(255, 214,  90); // softer warm yellow
+    private static final Color LIME     = new Color(168, 230, 161); // pastel green
+    private static final Color PINK     = new Color(255, 122, 138); // soft coral
+    private static final Color PH_CLR   = new Color(150, 150, 158);
+    private static final Color SHADOW   = new Color( 38,  38,  48, 46); // soft translucent
+    private static final int   THICK    = 2;
+    private static final int   SHADOW_OFF = 5;
+    private static final int   ARC      = 16;
 
     private static final String PH_PASS = "Masukkan password...";
 
@@ -59,15 +61,17 @@ public class FormLogin extends JFrame {
         JPanel card = new JPanel(new BorderLayout()) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
-                g2.setColor(BLACK);
-                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                int arc = ARC + 6;
+                g2.setColor(SHADOW);
+                g2.fillRoundRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF, arc, arc);
                 g2.setColor(BG);
-                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.fillRoundRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF, arc, arc);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
+                g2.drawRoundRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK, arc, arc);
                 g2.dispose();
             }
         };
@@ -107,14 +111,14 @@ public class FormLogin extends JFrame {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 int s = SHADOW_OFF;
-                g2.setColor(BLACK);
-                g2.fillRect(s, s, w - s, h - s);
+                g2.setColor(SHADOW);
+                g2.fillRoundRect(s, s, w - s, h - s, ARC, ARC);
                 g2.setColor(LIME);
-                g2.fillRect(0, 0, w - s, h - s);
+                g2.fillRoundRect(0, 0, w - s, h - s, ARC, ARC);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, w - s - THICK, h - s - THICK);
+                g2.drawRoundRect(t, t, w - s - THICK, h - s - THICK, ARC, ARC);
                 // lock symbol
                 int cx = (w - s) / 2, cy = (h - s) / 2;
                 g2.setStroke(new BasicStroke(2.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -214,18 +218,20 @@ public class FormLogin extends JFrame {
         JTextField f = new JTextField() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 g2.setColor(Color.WHITE);
-                g2.fillRect(0, 0, w, h);
+                g2.fillRoundRect(0, 0, w, h, ARC, ARC);
                 g2.dispose();
                 super.paintComponent(g);
             }
             @Override protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, getWidth() - THICK, getHeight() - THICK);
+                g2.drawRoundRect(t, t, getWidth() - THICK, getHeight() - THICK, ARC, ARC);
                 g2.dispose();
             }
         };
@@ -242,17 +248,19 @@ public class FormLogin extends JFrame {
         JPasswordField f = new JPasswordField() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.WHITE);
-                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), ARC, ARC);
                 g2.dispose();
                 super.paintComponent(g);
             }
             @Override protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, getWidth() - THICK, getHeight() - THICK);
+                g2.drawRoundRect(t, t, getWidth() - THICK, getHeight() - THICK, ARC, ARC);
                 g2.dispose();
             }
         };
@@ -287,25 +295,26 @@ public class FormLogin extends JFrame {
         JButton btn = new JButton(text) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 int s = SHADOW_OFF;
                 boolean pressed = getModel().isPressed();
                 boolean hover   = getModel().isRollover();
 
                 if (!pressed) {
-                    g2.setColor(BLACK);
-                    g2.fillRect(s, s, w - s, h - s);
+                    g2.setColor(SHADOW);
+                    g2.fillRoundRect(s, s, w - s, h - s, ARC, ARC);
                 }
                 int dx = pressed ? s : 0;
                 int dy = pressed ? s : 0;
                 Color fill = bg;
-                if (hover && !pressed) fill = brighten(bg, 18);
+                if (hover && !pressed) fill = brighten(bg, 14);
                 g2.setColor(fill);
-                g2.fillRect(dx, dy, w - s, h - s);
+                g2.fillRoundRect(dx, dy, w - s, h - s, ARC, ARC);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(dx + t, dy + t, w - s - THICK, h - s - THICK);
+                g2.drawRoundRect(dx + t, dy + t, w - s - THICK, h - s - THICK, ARC, ARC);
                 g2.dispose();
                 Graphics2D gt = (Graphics2D) g.create();
                 if (pressed) gt.translate(s, s);

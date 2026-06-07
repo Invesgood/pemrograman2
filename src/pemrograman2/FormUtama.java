@@ -18,17 +18,18 @@ public class FormUtama extends JFrame {
     private CardLayout cardLayout;
     private JButton    activeNavBtn;
 
-    // ── Neobrutalism palette (Yellow + Neon, Mint header) ─────────────────
-    private static final Color BG       = new Color(255, 255, 255); // pure white
-    private static final Color BLACK    = new Color(  0,   0,   0);
-    private static final Color MINT     = new Color(212, 241, 212); // pastel mint header
-    private static final Color YELLOW   = new Color(255, 217,  61); // primary
-    private static final Color LIME     = new Color(180, 255,  57); // neon green
-    private static final Color PINK     = new Color(255,  85, 119); // hot pink accent
-    private static final Color ORANGE   = new Color(255, 140,  50);
-    private static final Color SHADOW   = new Color(  0,   0,   0);
-    private static final int   THICK    = 3;
-    private static final int   SHADOW_OFF = 5;
+    // ── Soft neobrutalism palette (warm yellow + pastel, charcoal lines) ──
+    private static final Color BG       = new Color(252, 252, 253); // near white
+    private static final Color BLACK    = new Color( 38,  38,  48); // charcoal
+    private static final Color MINT     = new Color(214, 240, 218); // pastel mint header
+    private static final Color YELLOW   = new Color(255, 214,  90); // softer warm yellow
+    private static final Color LIME     = new Color(168, 230, 161); // pastel green
+    private static final Color PINK     = new Color(255, 122, 138); // soft coral accent
+    private static final Color ORANGE   = new Color(255, 184, 107);
+    private static final Color SHADOW   = new Color( 38,  38,  48, 46); // soft translucent
+    private static final int   THICK    = 2;
+    private static final int   SHADOW_OFF = 4;
+    private static final int   ARC      = 14;
 
     public FormUtama() {
         setTitle("Toko Berkah Jaya — Sistem Informasi Penjualan");
@@ -64,18 +65,19 @@ public class FormUtama extends JFrame {
         JPanel logoBox = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
-                // shadow
+                // soft shadow
                 g2.setColor(SHADOW);
-                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.fillRoundRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF, ARC, ARC);
                 // fill
                 g2.setColor(YELLOW);
-                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.fillRoundRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF, ARC, ARC);
                 // border
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
+                g2.drawRoundRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK, ARC, ARC);
                 // store icon (simple bag)
                 g2.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 int cx = (w - SHADOW_OFF) / 2, cy = (h - SHADOW_OFF) / 2;
@@ -112,13 +114,13 @@ public class FormUtama extends JFrame {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 g2.setColor(SHADOW);
-                g2.fillRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.fillRoundRect(SHADOW_OFF, SHADOW_OFF, w - SHADOW_OFF, h - SHADOW_OFF, ARC, ARC);
                 g2.setColor(PINK);
-                g2.fillRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF);
+                g2.fillRoundRect(0, 0, w - SHADOW_OFF, h - SHADOW_OFF, ARC, ARC);
                 g2.setColor(BLACK);
                 g2.setStroke(new BasicStroke(THICK));
                 int t = THICK / 2;
-                g2.drawRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK);
+                g2.drawRoundRect(t, t, w - SHADOW_OFF - THICK, h - SHADOW_OFF - THICK, ARC, ARC);
                 String init = (Session.namaLengkap != null && !Session.namaLengkap.isEmpty())
                         ? String.valueOf(Session.namaLengkap.charAt(0)).toUpperCase() : "?";
                 g2.setColor(BLACK);
@@ -218,6 +220,7 @@ public class FormUtama extends JFrame {
         JButton btn = new JButton() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 boolean active = (this == activeNavBtn);
                 boolean hover  = getModel().isRollover();
@@ -228,24 +231,24 @@ public class FormUtama extends JFrame {
                 int cardH = h - 2 * my;
 
                 if (active) {
-                    // shadow
+                    // soft shadow
                     g2.setColor(SHADOW);
-                    g2.fillRect(mx + SHADOW_OFF, my + SHADOW_OFF, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
+                    g2.fillRoundRect(mx + SHADOW_OFF, my + SHADOW_OFF, cardW - SHADOW_OFF, cardH - SHADOW_OFF, ARC, ARC);
                     // fill
                     g2.setColor(LIME);
-                    g2.fillRect(mx, my, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
+                    g2.fillRoundRect(mx, my, cardW - SHADOW_OFF, cardH - SHADOW_OFF, ARC, ARC);
                     // border
                     g2.setColor(BLACK);
                     g2.setStroke(new BasicStroke(THICK));
                     int t = THICK / 2;
-                    g2.drawRect(mx + t, my + t, cardW - SHADOW_OFF - THICK, cardH - SHADOW_OFF - THICK);
+                    g2.drawRoundRect(mx + t, my + t, cardW - SHADOW_OFF - THICK, cardH - SHADOW_OFF - THICK, ARC, ARC);
                 } else if (hover) {
-                    g2.setColor(YELLOW);
-                    g2.fillRect(mx, my, cardW - SHADOW_OFF, cardH - SHADOW_OFF);
-                    g2.setColor(BLACK);
+                    g2.setColor(new Color(255, 245, 214)); // soft yellow tint on hover
+                    g2.fillRoundRect(mx, my, cardW, cardH, ARC, ARC);
+                    g2.setColor(new Color(38, 38, 48, 70));
                     g2.setStroke(new BasicStroke(THICK));
                     int t = THICK / 2;
-                    g2.drawRect(mx + t, my + t, cardW - SHADOW_OFF - THICK, cardH - SHADOW_OFF - THICK);
+                    g2.drawRoundRect(mx + t, my + t, cardW - THICK, cardH - THICK, ARC, ARC);
                 }
                 g2.dispose();
                 super.paintComponent(g);

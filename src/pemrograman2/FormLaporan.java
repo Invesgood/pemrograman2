@@ -15,8 +15,8 @@ public class FormLaporan extends JPanel {
     private JLabel            lblTotalPendapatan, lblJmlTransaksi;
 
     public FormLaporan() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
     }
 
@@ -28,17 +28,23 @@ public class FormLaporan extends JPanel {
         add(lblTitle, BorderLayout.NORTH);
 
         // ── Filter Panel ─────────────────────────────────────────────────────
-        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String today = Validasi.hariIni();
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         filterPanel.setBorder(UITheme.titledBorder("Filter Tanggal"));
 
         txtTglMulai   = new JTextField(today, 12);
         txtTglSelesai = new JTextField(today, 12);
+        Validasi.hanyaTanggal(txtTglMulai);
+        Validasi.hanyaTanggal(txtTglSelesai);
 
         JButton btnTampilkan = new JButton("Tampilkan");
         JButton btnSemua     = new JButton("Semua Data");
 
-        btnTampilkan.addActionListener(e -> loadData(txtTglMulai.getText().trim(), txtTglSelesai.getText().trim()));
+        btnTampilkan.addActionListener(e -> {
+            if (!Validasi.isTanggal(this, txtTglMulai,   "Tanggal mulai",   true)) return;
+            if (!Validasi.isTanggal(this, txtTglSelesai, "Tanggal selesai", true)) return;
+            loadData(txtTglMulai.getText().trim(), txtTglSelesai.getText().trim());
+        });
         btnSemua.addActionListener(e -> {
             txtTglMulai.setText("");
             txtTglSelesai.setText("");
@@ -103,7 +109,7 @@ public class FormLaporan extends JPanel {
 
     public void refresh() {
         // Saat tab dibuka, tampilkan data hari ini
-        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String today = Validasi.hariIni();
         txtTglMulai.setText(today);
         txtTglSelesai.setText(today);
         loadData(today, today);
@@ -143,12 +149,12 @@ public class FormLaporan extends JPanel {
         try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
             if (hasFilter) {
                 if (tglMulai != null && !tglMulai.isEmpty() && tglSelesai != null && !tglSelesai.isEmpty()) {
-                    ps.setString(1, tglMulai);
-                    ps.setString(2, tglSelesai);
+                    ps.setString(1, Validasi.tglKeSql(tglMulai));
+                    ps.setString(2, Validasi.tglKeSql(tglSelesai));
                 } else if (tglMulai != null && !tglMulai.isEmpty()) {
-                    ps.setString(1, tglMulai);
+                    ps.setString(1, Validasi.tglKeSql(tglMulai));
                 } else {
-                    ps.setString(1, tglSelesai);
+                    ps.setString(1, Validasi.tglKeSql(tglSelesai));
                 }
             }
 
@@ -166,14 +172,14 @@ public class FormLaporan extends JPanel {
                     tableModel.addRow(new Object[]{
                         rs.getInt("id_jual"),
                         rs.getString("no_faktur"),
-                        rs.getString("tgl_transaksi"),
+                        Validasi.tglTampil(rs.getString("tgl_transaksi")),
                         idCust   != null ? idCust   : "-",
                         namaCust != null ? namaCust : "Non-Member",
                         rs.getString("nama_barang"),
                         rs.getString("satuan"),
                         rs.getInt("jumlah_beli"),
-                        String.format("%,.0f", rs.getDouble("harga_satuan")),
-                        String.format("%,.0f", subtotal),
+                        Validasi.rupiah(rs.getDouble("harga_satuan")),
+                        Validasi.rupiah(subtotal),
                         rs.getString("nama_lengkap")
                     });
                 }
@@ -181,7 +187,7 @@ public class FormLaporan extends JPanel {
             jmlTransaksi = fakturSet.size();
 
             lblJmlTransaksi.setText("Jumlah Transaksi: " + jmlTransaksi);
-            lblTotalPendapatan.setText("Total Pendapatan: Rp " + String.format("%,.0f", totalPendapatan));
+            lblTotalPendapatan.setText("Total Pendapatan: Rp " + Validasi.rupiah(totalPendapatan));
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

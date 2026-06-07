@@ -16,8 +16,8 @@ public class FormDaftarMember extends JPanel {
     private JLabel            lblTotal;
 
     public FormDaftarMember() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         loadData("");
     }
@@ -40,6 +40,9 @@ public class FormDaftarMember extends JPanel {
         txtNama    = new JTextField(20);
         txtAlamat  = new JTextField(25);
         txtTelepon = new JTextField(15);
+
+        Validasi.hanyaHuruf(txtNama);     // nama: huruf & spasi
+        Validasi.hanyaAngka(txtTelepon);  // telepon: angka
 
         JLabel lNama    = new JLabel("Nama Lengkap:");
         JLabel lAlamat  = new JLabel("Alamat:");

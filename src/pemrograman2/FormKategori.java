@@ -15,8 +15,8 @@ public class FormKategori extends JPanel {
     private boolean            isEdit = false;
 
     public FormKategori() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         loadData();
     }
@@ -33,12 +33,14 @@ public class FormKategori extends JPanel {
         inputPanel.setBorder(UITheme.titledBorder("Form Input Kategori"));
         GridBagConstraints g = new GridBagConstraints();
         g.fill   = GridBagConstraints.HORIZONTAL;
-        g.insets = new Insets(4, 8, 4, 8);
+        g.insets = new Insets(7, 10, 7, 10);
 
         txtIdKategori    = new JTextField(8);
         txtNamaKategori  = new JTextField(20);
         txtIdKategori.setEditable(false);
         txtIdKategori.setBackground(Color.LIGHT_GRAY);
+
+        Validasi.hanyaHuruf(txtNamaKategori);  // nama kategori: huruf & spasi
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         inputPanel.add(new JLabel("ID Kategori:"), g);

@@ -10,24 +10,27 @@ import javax.swing.table.*;
 
 public class UITheme {
 
-    // ── Palette: Neobrutalism (Yellow + Neon Green) ─────────────────────────
-    public static final Color PRIMARY       = new Color(255, 217,  61); // yellow
-    public static final Color PRIMARY_DARK  = new Color(  0,   0,   0); // black
-    public static final Color PRIMARY_LIGHT = new Color(180, 255,  57); // neon green
-    public static final Color SUCCESS       = new Color(180, 255,  57); // neon green
-    public static final Color DANGER        = new Color(255,  85, 119); // hot pink
-    public static final Color WARNING       = new Color(255, 140,  50); // orange
-    public static final Color NEUTRAL       = new Color(230, 230, 230); // light gray
-    public static final Color BG_PANEL      = new Color(255, 255, 255); // pure white
-    public static final Color BORDER_COLOR  = new Color(  0,   0,   0); // pure black
-    public static final Color TEXT_MAIN     = new Color(  0,   0,   0);
-    public static final Color TEXT_MUTED    = new Color( 80,  80,  80);
-    public static final Color ROW_ALT       = new Color(245, 245, 245); // very light grey
-    public static final Color ROW_SEL       = new Color(180, 255,  57); // neon green
+    // ── Palette: Soft Neobrutalism (warm yellow + pastel, charcoal lines) ────
+    public static final Color PRIMARY       = new Color(255, 214,  90); // softer warm yellow
+    public static final Color PRIMARY_DARK  = new Color( 38,  38,  48); // charcoal (ex pure black)
+    public static final Color PRIMARY_LIGHT = new Color(168, 230, 161); // pastel green
+    public static final Color SUCCESS       = new Color(168, 230, 161); // pastel green
+    public static final Color DANGER        = new Color(255, 122, 138); // soft coral
+    public static final Color WARNING       = new Color(255, 184, 107); // soft orange
+    public static final Color NEUTRAL       = new Color(236, 236, 240); // light gray
+    public static final Color BG_PANEL      = new Color(252, 252, 253); // near white
+    public static final Color BORDER_COLOR  = new Color( 38,  38,  48); // charcoal
+    public static final Color TEXT_MAIN     = new Color( 38,  38,  48);
+    public static final Color TEXT_MUTED    = new Color(120, 120, 132);
+    public static final Color ROW_ALT       = new Color(248, 248, 250); // very light grey
+    public static final Color ROW_SEL       = new Color(206, 240, 200); // soft pastel green
+    public static final Color SHADOW_COLOR  = new Color( 38,  38,  48, 46); // soft translucent
+    public static final Color GRID_COLOR    = new Color(224, 224, 230); // gentle grid line
 
-    // Thickness constants
-    public static final int   BORDER_THICK  = 3;
-    public static final int   SHADOW_SIZE   = 5;
+    // Thickness / shape constants
+    public static final int   BORDER_THICK  = 2;   // ex 3
+    public static final int   SHADOW_SIZE   = 4;   // ex 5 (softer offset)
+    public static final int   ARC           = 14;  // rounded corner radius
 
     // ── Typography ───────────────────────────────────────────────────────────
     public static final Font FONT_BODY   = new Font("Segoe UI", Font.PLAIN, 13);
@@ -44,10 +47,10 @@ public class UITheme {
                     UIManager.setLookAndFeel(laf.getClassName());
                     UIManager.put("control",                      BG_PANEL);
                     UIManager.put("nimbusBase",                   PRIMARY);
-                    UIManager.put("nimbusBlueGrey",               new Color(220, 220, 220));
+                    UIManager.put("nimbusBlueGrey",               new Color(228, 228, 232));
                     UIManager.put("nimbusSelectionBackground",    ROW_SEL);
                     UIManager.put("Table.alternateRowColor",      ROW_ALT);
-                    UIManager.put("TabbedPane.tabAreaBackground", BORDER_COLOR);
+                    UIManager.put("TabbedPane.tabAreaBackground", BG_PANEL);
                     UIManager.put("TabbedPane.selected",          PRIMARY);
                     UIManager.put("TabbedPane.contentAreaColor",  BG_PANEL);
                     UIManager.put("TabbedPane.selectedForeground",   BORDER_COLOR);
@@ -58,7 +61,7 @@ public class UITheme {
         } catch (Exception ignored) {}
     }
 
-    // ── Button (Neobrutalism: thick black border + hard offset shadow) ──────
+    // ── Button (soft neobrutalism: rounded + thin charcoal border + soft shadow)
     public static void styleButton(JButton btn, Color bg) {
         btn.setUI(new NeoButtonUI());
         btn.setBackground(bg);
@@ -73,7 +76,7 @@ public class UITheme {
         btn.setRolloverEnabled(true);
     }
 
-    /** Custom UI: renders flat color + hard shadow + thick border. */
+    /** Custom UI: rounded flat color + soft shadow + thin border, antialiased. */
     public static class NeoButtonUI extends BasicButtonUI {
         @Override public void paint(Graphics g, JComponent c) {
             AbstractButton b = (AbstractButton) c;
@@ -83,12 +86,12 @@ public class UITheme {
             boolean hover   = b.getModel().isRollover();
 
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Shadow (only when not pressed)
+            // Soft shadow (only when not pressed)
             if (!pressed && b.isEnabled()) {
-                g2.setColor(BORDER_COLOR);
-                g2.fillRect(s, s, w - s, h - s);
+                g2.setColor(SHADOW_COLOR);
+                g2.fillRoundRect(s, s, w - s, h - s, ARC, ARC);
             }
 
             int dx = pressed ? s : 0;
@@ -97,18 +100,18 @@ public class UITheme {
             // Fill
             Color fill = b.getBackground();
             if (!b.isEnabled()) {
-                fill = new Color(220, 220, 220);
+                fill = new Color(228, 228, 232);
             } else if (hover && !pressed) {
-                fill = brighten(fill, 18);
+                fill = brighten(fill, 14);
             }
             g2.setColor(fill);
-            g2.fillRect(dx, dy, w - s, h - s);
+            g2.fillRoundRect(dx, dy, w - s, h - s, ARC, ARC);
 
-            // Thick black border
+            // Thin charcoal border
             g2.setColor(BORDER_COLOR);
             g2.setStroke(new BasicStroke(BORDER_THICK));
             int t = BORDER_THICK / 2;
-            g2.drawRect(dx + t, dy + t, w - s - BORDER_THICK, h - s - BORDER_THICK);
+            g2.drawRoundRect(dx + t, dy + t, w - s - BORDER_THICK, h - s - BORDER_THICK, ARC, ARC);
             g2.dispose();
 
             // Text — shift down-right when pressed so it looks "pushed in"
@@ -120,11 +123,14 @@ public class UITheme {
 
         @Override protected void paintText(Graphics g, JComponent c, java.awt.Rectangle textRect, String text) {
             AbstractButton b = (AbstractButton) c;
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             Font f = b.getFont();
-            g.setFont(f);
-            FontMetrics fm = g.getFontMetrics(f);
-            g.setColor(b.isEnabled() ? b.getForeground() : new Color(110, 110, 110));
-            g.drawString(text, textRect.x, textRect.y + fm.getAscent());
+            g2.setFont(f);
+            FontMetrics fm = g2.getFontMetrics(f);
+            g2.setColor(b.isEnabled() ? b.getForeground() : new Color(150, 150, 158));
+            g2.drawString(text, textRect.x, textRect.y + fm.getAscent());
+            g2.dispose();
         }
     }
 
@@ -135,25 +141,56 @@ public class UITheme {
             Math.min(255, c.getBlue()  + amount));
     }
 
-    // ── TextField (thick black border) ──────────────────────────────────────
+    // ── Rounded line border (charcoal) with inner padding ───────────────────
+    public static Border roundedBorder(int top, int left, int bottom, int right) {
+        return BorderFactory.createCompoundBorder(
+            new RoundLineBorder(BORDER_COLOR, BORDER_THICK, ARC),
+            BorderFactory.createEmptyBorder(top, left, bottom, right));
+    }
+
+    /** A line border with rounded corners, drawn antialiased. */
+    public static class RoundLineBorder extends AbstractBorder {
+        private final Color color;
+        private final int thick, arc;
+        public RoundLineBorder(Color color, int thick, int arc) {
+            this.color = color; this.thick = thick; this.arc = arc;
+        }
+        @Override public Insets getBorderInsets(Component c) {
+            return new Insets(thick, thick, thick, thick);
+        }
+        @Override public Insets getBorderInsets(Component c, Insets insets) {
+            insets.set(thick, thick, thick, thick);
+            return insets;
+        }
+        @Override public boolean isBorderOpaque() { return false; }
+        @Override public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(thick));
+            int t = thick / 2;
+            g2.drawRoundRect(x + t, y + t, w - thick, h - thick, arc, arc);
+            g2.dispose();
+        }
+    }
+
+    // ── TextField (rounded charcoal border) ─────────────────────────────────
     public static void styleTextField(JTextField field) {
         field.setFont(FONT_BOLD);
         field.setForeground(TEXT_MAIN);
         field.setBackground(Color.WHITE);
         field.setCaretColor(BORDER_COLOR);
-        field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICK),
-            BorderFactory.createEmptyBorder(7, 10, 7, 10)));
+        field.setBorder(roundedBorder(7, 12, 7, 12));
     }
 
-    // ── ComboBox (thick black border) ───────────────────────────────────────
+    // ── ComboBox (rounded charcoal border) ──────────────────────────────────
     public static void styleComboBox(JComboBox<?> cb) {
         cb.setFont(FONT_BOLD);
         cb.setForeground(TEXT_MAIN);
         cb.setBackground(Color.WHITE);
-        cb.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICK));
-        // Custom renderer: highlight item dengan kuning tema + teks hitam,
-        // supaya tidak silau seperti default neon-green/teks putih.
+        cb.setBorder(new RoundLineBorder(BORDER_COLOR, BORDER_THICK, ARC));
+        // Custom renderer: highlight item dengan kuning tema + teks gelap,
+        // supaya tidak silau seperti default.
         cb.setRenderer(new DefaultListCellRenderer() {
             @Override public Component getListCellRendererComponent(
                     JList<?> list, Object value, int index,
@@ -163,7 +200,7 @@ public class UITheme {
                 setBorder(BorderFactory.createEmptyBorder(5, 9, 5, 9));
                 if (isSelected) {
                     setBackground(PRIMARY);        // yellow
-                    setForeground(BORDER_COLOR);   // black text
+                    setForeground(BORDER_COLOR);   // charcoal text
                 } else {
                     setBackground(Color.WHITE);
                     setForeground(TEXT_MAIN);
@@ -174,21 +211,21 @@ public class UITheme {
         });
     }
 
-    /** Walk container tree and apply neobrutalism styling to input components. */
+    /** Walk container tree and apply styling to input components. */
     public static void applyNeoToTree(Container root) {
         for (Component c : root.getComponents()) {
             if (c instanceof JPasswordField) {
                 styleTextField((JPasswordField) c);
             } else if (c instanceof JTextField) {
-                // Skip non-editable fields (e.g., ID fields) so they keep their grey look.
+                // Skip non-editable fields (e.g., ID fields) so they keep a muted look.
                 JTextField tf = (JTextField) c;
                 if (tf.isEditable()) {
                     styleTextField(tf);
                 } else {
                     tf.setFont(FONT_BOLD);
-                    tf.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICK),
-                        BorderFactory.createEmptyBorder(7, 10, 7, 10)));
+                    tf.setForeground(TEXT_MUTED);
+                    tf.setBackground(NEUTRAL);
+                    tf.setBorder(roundedBorder(7, 12, 7, 12));
                 }
             } else if (c instanceof JComboBox<?>) {
                 styleComboBox((JComboBox<?>) c);
@@ -197,21 +234,21 @@ public class UITheme {
         }
     }
 
-    // ── Titled Border (thick black line + bold title + inner padding) ─────
+    // ── Titled Border (rounded charcoal line + bold title + inner padding) ──
     public static Border titledBorder(String title) {
         TitledBorder tb = BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICK),
-            "  " + title.toUpperCase() + "  ",
+            new RoundLineBorder(BORDER_COLOR, BORDER_THICK, ARC),
+            "  " + title + "  ",
             TitledBorder.LEFT,
             TitledBorder.TOP,
             new Font("Segoe UI", Font.BOLD, 12),
             BORDER_COLOR);
         return BorderFactory.createCompoundBorder(
             tb,
-            BorderFactory.createEmptyBorder(10, 8, 8, 8));
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
-    /** Border that draws a card with hard offset black shadow. */
+    /** Border that draws a rounded card with soft offset shadow. */
     public static Border neoCardBorder() {
         return new AbstractBorder() {
             @Override public Insets getBorderInsets(Component c) {
@@ -221,15 +258,17 @@ public class UITheme {
             @Override public boolean isBorderOpaque() { return false; }
             @Override public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // soft shadow
+                g2.setColor(SHADOW_COLOR);
+                g2.fillRoundRect(x + SHADOW_SIZE, y + SHADOW_SIZE,
+                                 w - SHADOW_SIZE, h - SHADOW_SIZE, ARC, ARC);
+                // thin border
                 g2.setColor(BORDER_COLOR);
-                // shadow at bottom-right
-                g2.fillRect(x + SHADOW_SIZE, y + h - SHADOW_SIZE, w - SHADOW_SIZE, SHADOW_SIZE);
-                g2.fillRect(x + w - SHADOW_SIZE, y + SHADOW_SIZE, SHADOW_SIZE, h - SHADOW_SIZE);
-                // thick border
                 g2.setStroke(new BasicStroke(BORDER_THICK));
                 int t = BORDER_THICK / 2;
-                g2.drawRect(x + t, y + t,
-                            w - SHADOW_SIZE - BORDER_THICK, h - SHADOW_SIZE - BORDER_THICK);
+                g2.drawRoundRect(x + t, y + t,
+                            w - SHADOW_SIZE - BORDER_THICK, h - SHADOW_SIZE - BORDER_THICK, ARC, ARC);
                 g2.dispose();
             }
         };
@@ -239,11 +278,11 @@ public class UITheme {
     public static void styleTable(JTable table) {
         table.setFont(FONT_BODY);
         table.setForeground(TEXT_MAIN);
-        table.setRowHeight(34);
-        table.setGridColor(BORDER_COLOR);
+        table.setRowHeight(36);
+        table.setGridColor(GRID_COLOR);
         table.setShowHorizontalLines(true);
-        table.setShowVerticalLines(true);
-        table.setIntercellSpacing(new Dimension(1, 1));
+        table.setShowVerticalLines(false);
+        table.setIntercellSpacing(new Dimension(0, 1));
         table.setSelectionBackground(ROW_SEL);
         table.setSelectionForeground(BORDER_COLOR);
         table.setBackground(Color.WHITE);
@@ -256,9 +295,9 @@ public class UITheme {
                 lbl.setBackground(PRIMARY);
                 lbl.setForeground(BORDER_COLOR);
                 lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
-                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setHorizontalAlignment(SwingConstants.LEFT);
                 lbl.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, BORDER_THICK, 1, BORDER_COLOR),
+                    BorderFactory.createMatteBorder(0, 0, BORDER_THICK, 0, BORDER_COLOR),
                     BorderFactory.createEmptyBorder(8, 10, 8, 10)));
                 lbl.setOpaque(true);
                 return lbl;

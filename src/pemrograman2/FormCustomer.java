@@ -20,8 +20,8 @@ public class FormCustomer extends JPanel {
     private JTextField txtCari;
 
     public FormCustomer() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
 
         if ("Petugas".equals(Session.level)) {
             initComponentsPetugas();
@@ -44,7 +44,7 @@ public class FormCustomer extends JPanel {
         inputPanel.setBorder(UITheme.titledBorder("Form Input Customer"));
         GridBagConstraints g = new GridBagConstraints();
         g.fill   = GridBagConstraints.HORIZONTAL;
-        g.insets = new Insets(4, 8, 4, 8);
+        g.insets = new Insets(7, 10, 7, 10);
 
         txtId      = new JTextField(10);
         txtNama    = new JTextField(20);
@@ -52,6 +52,9 @@ public class FormCustomer extends JPanel {
         txtTelepon = new JTextField(15);
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);
+
+        Validasi.hanyaHuruf(txtNama);     // nama: huruf & spasi
+        Validasi.hanyaAngka(txtTelepon);  // telepon: angka
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         inputPanel.add(new JLabel("ID Customer:"), g);
@@ -161,7 +164,7 @@ public class FormCustomer extends JPanel {
         detailPanel.setBorder(UITheme.titledBorder("Detail Customer"));
         GridBagConstraints g = new GridBagConstraints();
         g.fill = GridBagConstraints.HORIZONTAL;
-        g.insets = new Insets(4, 8, 4, 8);
+        g.insets = new Insets(7, 10, 7, 10);
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         detailPanel.add(new JLabel("ID Customer:"), g);

@@ -26,7 +26,7 @@ public class FormMember extends JPanel {
 
         JLabel lblSection = new JLabel("MEMBER");
         lblSection.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        lblSection.setForeground(new Color(200, 225, 255));
+        lblSection.setForeground(UITheme.PRIMARY);
 
         JPanel pillBox = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 6));
         pillBox.setOpaque(false);
@@ -95,8 +95,8 @@ public class FormMember extends JPanel {
 
     private void applyInactive(JButton btn) {
         btn.setUI(new BasicButtonUI());
-        btn.setBackground(new Color(60, 100, 160));
-        btn.setForeground(new Color(200, 225, 255));
+        btn.setBackground(new Color(70, 70, 82));
+        btn.setForeground(UITheme.NEUTRAL);
         btn.setFont(UITheme.FONT_BODY);
         btn.setOpaque(true);
         btn.setFocusPainted(false);

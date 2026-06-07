@@ -18,7 +18,7 @@ public class FormDashboard extends JPanel {
 
     public FormDashboard() {
         setLayout(new BorderLayout(5, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         refresh();
     }
@@ -116,7 +116,7 @@ public class FormDashboard extends JPanel {
                 "FROM tb_penjualan WHERE tgl_transaksi = CURDATE()");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                lblPenjualanHari.setText("Rp " + String.format("%,.0f", rs.getDouble("total")));
+                lblPenjualanHari.setText("Rp " + Validasi.rupiah(rs.getDouble("total")));
                 lblTransaksiHari.setText(String.valueOf(rs.getInt("jml")));
             }
         } catch (SQLException e) { showError(e); }
@@ -127,7 +127,7 @@ public class FormDashboard extends JPanel {
                 "WHERE MONTH(tgl_transaksi) = MONTH(CURDATE()) AND YEAR(tgl_transaksi) = YEAR(CURDATE())");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next())
-                lblPenjualanBulan.setText("Rp " + String.format("%,.0f", rs.getDouble("total")));
+                lblPenjualanBulan.setText("Rp " + Validasi.rupiah(rs.getDouble("total")));
         } catch (SQLException e) { showError(e); }
 
         // KPI: jumlah barang stok menipis
@@ -152,7 +152,7 @@ public class FormDashboard extends JPanel {
                     rank++,
                     rs.getString("nama_barang"),
                     rs.getInt("qty"),
-                    "Rp " + String.format("%,.0f", rs.getDouble("total"))
+                    "Rp " + Validasi.rupiah(rs.getDouble("total"))
                 });
             }
         } catch (SQLException e) { showError(e); }

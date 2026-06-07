@@ -22,8 +22,8 @@ public class FormUser extends JPanel {
     private boolean           isEdit = false;
 
     public FormUser() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(0, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         loadData();
     }
@@ -39,12 +39,15 @@ public class FormUser extends JPanel {
         inputPanel.setBorder(UITheme.titledBorder("Form Input User"));
         GridBagConstraints g = new GridBagConstraints();
         g.fill   = GridBagConstraints.HORIZONTAL;
-        g.insets = new Insets(4, 8, 4, 8);
+        g.insets = new Insets(7, 10, 7, 10);
 
         txtId       = new JTextField(10);
         txtUsername = new JTextField(20);
         txtPassword = new JPasswordField(20);
         txtNama     = new JTextField(20);
+
+        Validasi.tanpaSpasi(txtUsername);  // username: tanpa spasi
+        Validasi.hanyaHuruf(txtNama);      // nama lengkap: huruf & spasi
         cboLevel    = new JComboBox<>(new String[]{"Petugas", "Admin"});
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);
