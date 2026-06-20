@@ -41,8 +41,7 @@ public class FormDaftarMember extends JPanel {
         txtAlamat  = new JTextField(25);
         txtTelepon = new JTextField(15);
 
-        Validasi.hanyaHuruf(txtNama);     // nama: huruf & spasi
-        Validasi.hanyaAngka(txtTelepon);  // telepon: angka
+        // Tanpa filter ketik: divalidasi saat Simpan & ditampilkan via popup.
 
         JLabel lNama    = new JLabel("Nama Lengkap:");
         JLabel lAlamat  = new JLabel("Alamat:");

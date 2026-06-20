@@ -53,8 +53,7 @@ public class FormCustomer extends JPanel {
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);
 
-        Validasi.hanyaHuruf(txtNama);     // nama: huruf & spasi
-        Validasi.hanyaAngka(txtTelepon);  // telepon: angka
+        // Tanpa filter ketik: divalidasi saat Simpan & ditampilkan via popup.
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         inputPanel.add(new JLabel("ID Customer:"), g);

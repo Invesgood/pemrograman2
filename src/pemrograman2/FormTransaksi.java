@@ -19,6 +19,8 @@ public class FormTransaksi extends JPanel {
     private final List<Double>  barangHargaList  = new ArrayList<>();
     private final List<Integer> barangStokList   = new ArrayList<>();
     private final List<String>  barangSatuanList = new ArrayList<>();
+    // Peta baris tabel hasil cari (sudah difilter) → index asli di list barang di atas.
+    private final List<Integer> hasilToMaster    = new ArrayList<>();
 
     // ── Customer state ────────────────────────────────────────────────────────
     private String foundCustomerId   = null;  // null = Non-Member
@@ -26,7 +28,6 @@ public class FormTransaksi extends JPanel {
 
     // ── Keranjang (item-item dalam 1 transaksi) ───────────────────────────────
     private final List<CartItem> keranjang = new ArrayList<>();
-    private boolean suppressComboEvent = false;
 
     private static class CartItem {
         String idBarang, namaBarang, satuan;
@@ -42,7 +43,12 @@ public class FormTransaksi extends JPanel {
     private JButton            btnCariMember;
     private JLabel             lblMemberInfo;
 
-    private JComboBox<String>  cboBarang;
+    private JTextField               txtCariBarang;
+    private JPopupMenu               popupHasil;
+    private JList<String>            lstHasil;
+    private DefaultListModel<String> hasilListModel;
+    private int                      selectedMaster   = -1;  // barang terpilih (index master); -1 = belum pilih
+    private boolean                  suppressDocEvent = false;
     private JTextField         txtTanggal, txtHarga, txtTotal, txtJumlah;
     private JLabel             lblStokInfo;
     private JButton            btnTambah, btnHapusItem, btnKosongkan;
@@ -126,14 +132,36 @@ public class FormTransaksi extends JPanel {
 
         // ── Barang ───────────────────────────────────────────────────────────
         g.gridwidth = 1;
-        cboBarang = new JComboBox<>();
+        txtCariBarang = new JTextField();
+        txtCariBarang.setToolTipText("Ketik nama atau ID barang, lalu pilih dari daftar yang muncul");
         lblStokInfo = new JLabel("Stok: -");
         lblStokInfo.setFont(UITheme.FONT_SMALL);
+
+        // Autocomplete: ketik di kolom cari → daftar saran muncul di bawahnya; klik untuk memilih.
+        hasilListModel = new DefaultListModel<>();
+        lstHasil = new JList<>(hasilListModel);
+        lstHasil.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        lstHasil.setFont(UITheme.FONT_BODY);
+        lstHasil.setVisibleRowCount(6);
+
+        popupHasil = new JPopupMenu();
+        popupHasil.setFocusable(false);   // fokus tetap di kolom ketik
+        popupHasil.add(new JScrollPane(lstHasil));
+
+        JPanel barangPanel = new JPanel(new BorderLayout(0, 3));
+        barangPanel.setOpaque(false);
+        JLabel lblCari = new JLabel("🔍 Cari:");
+        lblCari.setFont(UITheme.FONT_SMALL);
+        JPanel cariRow = new JPanel(new BorderLayout(4, 0));
+        cariRow.setOpaque(false);
+        cariRow.add(lblCari, BorderLayout.WEST);
+        cariRow.add(txtCariBarang, BorderLayout.CENTER);
+        barangPanel.add(cariRow, BorderLayout.CENTER);
 
         g.gridx = 0; g.gridy = 2; g.weightx = 0;
         inputPanel.add(boldLabel("Barang:"), g);
         g.gridx = 1; g.gridy = 2; g.weightx = 1; g.gridwidth = 2;
-        inputPanel.add(cboBarang, g);
+        inputPanel.add(barangPanel, g);
         g.gridwidth = 1;
         g.gridx = 3; g.gridy = 2; g.weightx = 0;
         inputPanel.add(lblStokInfo, g);
@@ -144,7 +172,7 @@ public class FormTransaksi extends JPanel {
         txtHarga.setBackground(UITheme.NEUTRAL);
 
         txtJumlah = new JTextField(6);
-        Validasi.hanyaAngka(txtJumlah);   // tolak huruf/simbol saat diketik
+        // Tanpa filter ketik: jumlah divalidasi via popup saat "Tambah ke Keranjang".
 
         g.gridx = 0; g.gridy = 3; g.weightx = 0;
         inputPanel.add(boldLabel("Harga Satuan (Rp):"), g);
@@ -169,7 +197,43 @@ public class FormTransaksi extends JPanel {
         inputPanel.add(txtTotal, g);
 
         // ── Events ───────────────────────────────────────────────────────────
-        cboBarang.addActionListener(e -> onBarangSelected());
+        // Tiap ketik → bangun ulang saran & tampilkan popup; pilihan lama dibatalkan.
+        txtCariBarang.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e)  { onCariBarangKetik(); }
+            public void removeUpdate(DocumentEvent e)  { onCariBarangKetik(); }
+            public void changedUpdate(DocumentEvent e) { onCariBarangKetik(); }
+        });
+        // Panah bawah → pindah fokus ke daftar saran.
+        txtCariBarang.addKeyListener(new KeyAdapter() {
+            @Override public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DOWN && popupHasil.isVisible()
+                        && hasilListModel.getSize() > 0) {
+                    lstHasil.requestFocus();
+                    lstHasil.setSelectedIndex(0);
+                }
+            }
+        });
+        // Enter di kolom cari → bila hanya satu saran langsung pilih; jika sudah ada pilihan, fokus ke jumlah.
+        txtCariBarang.addActionListener(e -> {
+            if (hasilListModel.getSize() == 1) pilihSaran(0);
+            else if (selectedMaster >= 0)      txtJumlah.requestFocus();
+        });
+
+        // Klik / Enter pada daftar saran → pilih barang tersebut.
+        lstHasil.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                int i = lstHasil.locationToIndex(e.getPoint());
+                if (i >= 0) pilihSaran(i);
+            }
+        });
+        lstHasil.addKeyListener(new KeyAdapter() {
+            @Override public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    int i = lstHasil.getSelectedIndex();
+                    if (i >= 0) pilihSaran(i);
+                }
+            }
+        });
 
         txtJumlah.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e)  { hitungTotal(); }
@@ -270,7 +334,7 @@ public class FormTransaksi extends JPanel {
 
         txtTelpCari = new JTextField(16);
         txtTelpCari.setFont(UITheme.FONT_BODY);
-        Validasi.hanyaAngka(txtTelpCari);  // cari member by telepon: angka saja
+        // Tanpa filter ketik pada kolom pencarian member.
         txtTelpCari.setToolTipText("Masukkan nomor telepon member, lalu tekan Enter atau klik Cari");
 
         btnCariMember = new JButton("Cari");
@@ -354,10 +418,19 @@ public class FormTransaksi extends JPanel {
         }
     }
 
+    /** Index master (di barang*List) untuk item dropdown yang sedang dipilih; -1 bila tak ada. */
+    private int selectedMasterIdx() {
+        return (selectedMaster >= 0 && selectedMaster < barangIdList.size()) ? selectedMaster : -1;
+    }
+
     private void onBarangSelected() {
-        if (suppressComboEvent) return;
-        int idx = cboBarang.getSelectedIndex();
-        if (idx < 0 || idx >= barangHargaList.size()) return;
+        int idx = selectedMasterIdx();
+        if (idx < 0) {
+            txtHarga.setText("0");
+            lblStokInfo.setText("Stok: -");
+            hitungTotal();
+            return;
+        }
 
         double harga  = barangHargaList.get(idx);
         int    sisa   = sisaStok(idx);   // stok DB dikurangi yang sudah di keranjang
@@ -384,19 +457,58 @@ public class FormTransaksi extends JPanel {
         return barangStokList.get(idx) - qtyDiKeranjang(barangIdList.get(idx));
     }
 
-    /** Perbarui teks dropdown barang agar menampilkan sisa stok terkini. */
-    private void refreshComboStok() {
-        if (barangIdList.isEmpty()) return;
-        suppressComboEvent = true;
-        int sel = cboBarang.getSelectedIndex();
-        cboBarang.removeAllItems();
-        for (int i = 0; i < barangIdList.size(); i++) {
-            cboBarang.addItem(barangIdList.get(i) + " — " + barangNamaList.get(i)
-                    + "  [Stok: " + sisaStok(i) + "]");
+    /** Dipanggil saat teks pencarian berubah: pilihan lama batal, saran dibangun & popup ditampilkan. */
+    private void onCariBarangKetik() {
+        if (suppressDocEvent) return;
+        selectedMaster = -1;   // teks berubah → barang yang sebelumnya dipilih dibatalkan
+        onBarangSelected();    // kosongkan harga & info stok sampai ada pilihan baru
+        refreshHasilCari();    // bangun ulang daftar saran
+        tampilkanPopup();      // tampilkan / sembunyikan popup sesuai hasil
+    }
+
+    /** Bangun ulang isi daftar saran (sisa stok terkini) sesuai kata kunci di kolom cari. */
+    private void refreshHasilCari() {
+        String q = (txtCariBarang == null ? "" : txtCariBarang.getText().trim().toLowerCase());
+        hasilListModel.clear();
+        hasilToMaster.clear();
+        // Daftar saran hanya terisi setelah ada kata kunci di kolom cari.
+        for (int i = 0; !q.isEmpty() && i < barangIdList.size(); i++) {
+            // Cocokkan kata kunci dengan ID atau nama barang (abaikan besar/kecil huruf).
+            boolean cocok = barangIdList.get(i).toLowerCase().contains(q)
+                    || barangNamaList.get(i).toLowerCase().contains(q);
+            if (cocok) {
+                String satuan = barangSatuanList.get(i);
+                hasilListModel.addElement(
+                        barangIdList.get(i) + " — " + barangNamaList.get(i)
+                        + "   (Rp " + Validasi.rupiah(barangHargaList.get(i))
+                        + " | Stok: " + sisaStok(i) + (satuan.isEmpty() ? "" : " " + satuan) + ")");
+                hasilToMaster.add(i);
+            }
         }
-        if (sel >= 0 && sel < cboBarang.getItemCount()) cboBarang.setSelectedIndex(sel);
-        suppressComboEvent = false;
-        onBarangSelected();
+    }
+
+    /** Tampilkan popup saran di bawah kolom cari bila ada hasil, selain itu sembunyikan. */
+    private void tampilkanPopup() {
+        if (hasilListModel.getSize() > 0 && txtCariBarang.isShowing()) {
+            popupHasil.setPopupSize(txtCariBarang.getWidth(),
+                    Math.min(hasilListModel.getSize(), 6) * 24 + 8);
+            popupHasil.show(txtCariBarang, 0, txtCariBarang.getHeight());
+            txtCariBarang.requestFocus();   // fokus tetap di kolom ketik agar bisa lanjut mengetik
+        } else {
+            popupHasil.setVisible(false);
+        }
+    }
+
+    /** Pilih satu saran (index pada daftar saran): isi kolom cari & data barang. */
+    private void pilihSaran(int idxSaran) {
+        if (idxSaran < 0 || idxSaran >= hasilToMaster.size()) return;
+        selectedMaster = hasilToMaster.get(idxSaran);
+        suppressDocEvent = true;
+        txtCariBarang.setText(barangNamaList.get(selectedMaster));   // kolom cari terisi pilihan
+        suppressDocEvent = false;
+        popupHasil.setVisible(false);
+        onBarangSelected();        // isi harga & info stok
+        txtJumlah.requestFocus();
     }
 
     private void hitungTotal() {
@@ -412,7 +524,7 @@ public class FormTransaksi extends JPanel {
     // ── Keranjang ──────────────────────────────────────────────────────────────
 
     private void tambahKeKeranjang() {
-        int idx = cboBarang.getSelectedIndex();
+        int idx = selectedMasterIdx();
         if (idx < 0 || barangIdList.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Pilih barang terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
@@ -479,7 +591,7 @@ public class FormTransaksi extends JPanel {
         // Reset input jumlah agar siap menambah barang berikutnya
         txtJumlah.setText("");
         txtTotal.setText("0");
-        cboBarang.requestFocus();
+        txtCariBarang.requestFocus();
     }
 
     private void hapusItem() {
@@ -518,21 +630,20 @@ public class FormTransaksi extends JPanel {
             });
         }
         lblGrandTotal.setText("TOTAL BAYAR: Rp " + Validasi.rupiah(grand));
-        refreshComboStok();   // tampilan sisa stok ikut menyesuaikan isi keranjang
+        refreshHasilCari();   // tampilan sisa stok ikut menyesuaikan isi keranjang
     }
 
     // ── Data Load ─────────────────────────────────────────────────────────────
 
     public void refresh() {
         loadBarang();
-        refreshComboStok();   // sesuaikan tampilan stok dengan isi keranjang (bila ada)
+        refreshHasilCari();   // sesuaikan tampilan stok dengan isi keranjang (bila ada)
         loadRiwayat();
         txtTanggal.setText(Validasi.hariIni());
     }
 
     private void loadBarang() {
-        int prevIdx = cboBarang.getSelectedIndex();
-        cboBarang.removeAllItems();
+        // Hanya muat data master; pengisian tabel hasil (termasuk filter) diserahkan ke refreshHasilCari().
         barangIdList.clear();
         barangNamaList.clear();
         barangHargaList.clear();
@@ -540,7 +651,7 @@ public class FormTransaksi extends JPanel {
         barangSatuanList.clear();
 
         Connection con = Koneksi.getKoneksi();
-        if (con == null) return;
+        if (con == null) { refreshHasilCari(); return; }
         try (PreparedStatement ps = con.prepareStatement(
                 "SELECT id_barang, nama_barang, harga_jual, stok, satuan FROM tb_barang ORDER BY nama_barang");
              ResultSet rs = ps.executeQuery()) {
@@ -550,14 +661,12 @@ public class FormTransaksi extends JPanel {
                 barangHargaList.add(rs.getDouble("harga_jual"));
                 barangStokList.add(rs.getInt("stok"));
                 barangSatuanList.add(rs.getString("satuan") != null ? rs.getString("satuan") : "");
-                cboBarang.addItem(rs.getString("id_barang") + " — " + rs.getString("nama_barang")
-                        + "  [Stok: " + rs.getInt("stok") + "]");
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Error database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        if (prevIdx >= 0 && prevIdx < cboBarang.getItemCount()) cboBarang.setSelectedIndex(prevIdx);
+        refreshHasilCari();
     }
 
     private void loadRiwayat() {
@@ -741,7 +850,7 @@ public class FormTransaksi extends JPanel {
     private Double mintaPembayaran(double total) {
         JTextField txtBayar = new JTextField(14);
         txtBayar.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        Validasi.formatRibuan(txtBayar);   // angka + titik ribuan otomatis
+        // Tanpa filter ketik: uang dibayar divalidasi via popup saat OK.
 
         JLabel lblTotalVal = new JLabel("Rp " + Validasi.rupiah(total));
         lblTotalVal.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -827,11 +936,14 @@ public class FormTransaksi extends JPanel {
     private void bersihkanInput() {
         txtJumlah.setText("");
         txtTotal.setText("0");
-        if (cboBarang.getItemCount() > 0) {
-            cboBarang.setSelectedIndex(0);
-            onBarangSelected();
-        }
-        txtJumlah.requestFocus();
+        selectedMaster = -1;
+        suppressDocEvent = true;
+        txtCariBarang.setText("");
+        suppressDocEvent = false;
+        popupHasil.setVisible(false);
+        refreshHasilCari();
+        onBarangSelected();
+        txtCariBarang.requestFocus();
     }
 
     /** Reset seluruh form setelah transaksi tersimpan. */
@@ -854,14 +966,16 @@ public class FormTransaksi extends JPanel {
         txtHarga.setText("0");
         txtTotal.setText("0");
         lblStokInfo.setText("Stok: -");
+        selectedMaster = -1;
+        suppressDocEvent = true;
+        txtCariBarang.setText("");   // kosongkan pencarian
+        suppressDocEvent = false;
+        popupHasil.setVisible(false);
 
         loadBarang();
         loadRiwayat();
-        if (cboBarang.getItemCount() > 0) {
-            cboBarang.setSelectedIndex(0);
-            onBarangSelected();
-        }
-        txtJumlah.requestFocus();
+        onBarangSelected();
+        txtCariBarang.requestFocus();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

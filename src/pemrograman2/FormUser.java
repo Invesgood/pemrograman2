@@ -46,8 +46,7 @@ public class FormUser extends JPanel {
         txtPassword = new JPasswordField(20);
         txtNama     = new JTextField(20);
 
-        Validasi.tanpaSpasi(txtUsername);  // username: tanpa spasi
-        Validasi.hanyaHuruf(txtNama);      // nama lengkap: huruf & spasi
+        // Tanpa filter ketik: divalidasi saat Simpan & ditampilkan via popup.
         cboLevel    = new JComboBox<>(new String[]{"Petugas", "Admin"});
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);

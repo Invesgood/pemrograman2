@@ -186,6 +186,16 @@ public class Validasi {
         return true;
     }
 
+    /** Nama barang: wajib diisi & boleh alfanumerik, tapi tidak boleh angka saja. */
+    public static boolean isNamaBarang(Component p, JTextField f, String label) {
+        if (!notEmpty(p, f, label)) return false;
+        if (!f.getText().trim().matches(".*[a-zA-Z].*")) {
+            warn(p, label + " tidak boleh berisi angka saja, harus mengandung huruf!", f);
+            return false;
+        }
+        return true;
+    }
+
     /** Nomor telepon: angka 9–15 digit. required=true berarti wajib diisi. */
     public static boolean isTelepon(Component p, JTextField f, String label, boolean required) {
         String v = f.getText().trim();

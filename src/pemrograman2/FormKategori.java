@@ -40,7 +40,7 @@ public class FormKategori extends JPanel {
         txtIdKategori.setEditable(false);
         txtIdKategori.setBackground(Color.LIGHT_GRAY);
 
-        Validasi.hanyaHuruf(txtNamaKategori);  // nama kategori: huruf & spasi
+        // Tanpa filter ketik: divalidasi saat Simpan & ditampilkan via popup.
 
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
         inputPanel.add(new JLabel("ID Kategori:"), g);

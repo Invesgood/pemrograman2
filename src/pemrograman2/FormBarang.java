@@ -46,11 +46,7 @@ public class FormBarang extends JPanel {
         txtId.setEditable(false);
         txtId.setBackground(Color.LIGHT_GRAY);
 
-        // Filter ketik sesuai jenis data (nama barang dibiarkan alfanumerik bebas)
-        Validasi.hanyaHuruf(txtKategori);   // kategori: huruf & spasi
-        Validasi.hanyaHuruf(txtSatuan);     // satuan: huruf (pcs, kg, liter)
-        Validasi.formatRibuan(txtHarga);    // harga: angka bulat + titik ribuan
-        Validasi.hanyaAngka(txtStok);       // stok: bilangan bulat
+        // Tanpa filter ketik: semua aturan dicek saat Simpan & ditampilkan via popup.
 
         // Row 0: ID Barang | Kategori
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
@@ -202,8 +198,8 @@ public class FormBarang extends JPanel {
     }
 
     private boolean validasiInput() {
-        // Nama barang boleh alfanumerik (mis. "Air Mineral 600ml"), cukup wajib diisi.
-        if (!Validasi.notEmpty(this, txtNama, "Nama barang")) return false;
+        // Nama barang boleh alfanumerik (mis. "Air Mineral 600ml"), tapi tak boleh angka saja.
+        if (!Validasi.isNamaBarang(this, txtNama, "Nama barang")) return false;
         if (!Validasi.isNama(this, txtKategori, "Kategori")) return false;
         if (!Validasi.isNama(this, txtSatuan, "Satuan")) return false;
         if (!Validasi.isDoubleTakNegatif(this, txtHarga, "Harga jual")) return false;

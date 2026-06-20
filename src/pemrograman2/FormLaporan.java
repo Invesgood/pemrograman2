@@ -34,11 +34,11 @@ public class FormLaporan extends JPanel {
 
         txtTglMulai   = new JTextField(today, 12);
         txtTglSelesai = new JTextField(today, 12);
-        Validasi.hanyaTanggal(txtTglMulai);
-        Validasi.hanyaTanggal(txtTglSelesai);
+        // Tanpa filter ketik: tanggal divalidasi saat klik "Tampilkan" via popup.
 
         JButton btnTampilkan = new JButton("Tampilkan");
         JButton btnSemua     = new JButton("Semua Data");
+        JButton btnCetak     = new JButton("Export PDF");
 
         btnTampilkan.addActionListener(e -> {
             if (!Validasi.isTanggal(this, txtTglMulai,   "Tanggal mulai",   true)) return;
@@ -50,8 +50,10 @@ public class FormLaporan extends JPanel {
             txtTglSelesai.setText("");
             loadData(null, null);
         });
+        btnCetak.addActionListener(e -> exportPdf());
         UITheme.styleButton(btnTampilkan, UITheme.PRIMARY);
         UITheme.styleButton(btnSemua,     UITheme.NEUTRAL);
+        UITheme.styleButton(btnCetak,     UITheme.SUCCESS);
 
         filterPanel.add(new JLabel("Dari:"));
         filterPanel.add(txtTglMulai);
@@ -59,6 +61,7 @@ public class FormLaporan extends JPanel {
         filterPanel.add(txtTglSelesai);
         filterPanel.add(btnTampilkan);
         filterPanel.add(btnSemua);
+        filterPanel.add(btnCetak);
 
         // ── Table ────────────────────────────────────────────────────────────
         tableModel = new DefaultTableModel(
@@ -113,6 +116,72 @@ public class FormLaporan extends JPanel {
         txtTglMulai.setText(today);
         txtTglSelesai.setText(today);
         loadData(today, today);
+    }
+
+    /** Ekspor isi tabel laporan langsung ke berkas PDF (tanpa dialog printer). */
+    private void exportPdf() {
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Tidak ada data untuk diekspor. Tampilkan data terlebih dahulu.",
+                    "Export PDF", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String mulai   = txtTglMulai.getText().trim();
+        String selesai = txtTglSelesai.getText().trim();
+        String periode = (mulai.isEmpty() && selesai.isEmpty())
+                ? "Semua Periode"
+                : mulai + " s/d " + selesai;
+
+        // Dialog pilih lokasi simpan, dengan nama berkas default.
+        String defName = "Laporan_Penjualan_"
+                + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf";
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Simpan Laporan PDF");
+        chooser.setSelectedFile(new java.io.File(defName));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Berkas PDF (*.pdf)", "pdf"));
+        if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+
+        java.io.File file = chooser.getSelectedFile();
+        if (!file.getName().toLowerCase().endsWith(".pdf")) {
+            file = new java.io.File(file.getParentFile(), file.getName() + ".pdf");
+        }
+
+        // Kumpulkan kolom + data dari tabel.
+        int cols = tableModel.getColumnCount();
+        String[] columns = new String[cols];
+        for (int i = 0; i < cols; i++) columns[i] = tableModel.getColumnName(i);
+        // Lebar kolom (point) untuk A4 landscape; jumlah = 782.
+        int[] colWidths = {40, 70, 70, 55, 110, 110, 45, 35, 85, 85, 77};
+
+        java.util.List<String[]> rows = new java.util.ArrayList<>();
+        for (int r = 0; r < tableModel.getRowCount(); r++) {
+            String[] row = new String[cols];
+            for (int ccol = 0; ccol < cols; ccol++) {
+                Object v = tableModel.getValueAt(r, ccol);
+                row[ccol] = v == null ? "" : v.toString();
+            }
+            rows.add(row);
+        }
+
+        String title  = "Laporan Penjualan Toko Berkah Jaya";
+        String footer = lblTotalPendapatan.getText() + "    |    " + lblJmlTransaksi.getText();
+
+        try {
+            PdfExporter.exportTable(file, title, periode, columns, colWidths, rows, footer);
+
+            int pil = JOptionPane.showConfirmDialog(this,
+                    "Laporan berhasil disimpan ke:\n" + file.getAbsolutePath()
+                            + "\n\nBuka berkas sekarang?",
+                    "Export PDF", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if (pil == JOptionPane.YES_OPTION && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Gagal mengekspor PDF:\n" + ex.getMessage(),
+                    "Error Export", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void loadData(String tglMulai, String tglSelesai) {
