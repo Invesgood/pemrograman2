@@ -20,6 +20,7 @@ public class FormBarang extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
         initComponents();
         loadData();
+        txtId.setText(generateNextId());
     }
 
     private void initComponents() {
@@ -307,7 +308,7 @@ public class FormBarang extends JPanel {
     }
 
     private void bersihkan() {
-        txtId.setText("");
+        txtId.setText(generateNextId());
         txtNama.setText("");
         txtSatuan.setText("");
         txtHarga.setText("");

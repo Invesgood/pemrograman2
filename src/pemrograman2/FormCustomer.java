@@ -29,6 +29,9 @@ public class FormCustomer extends JPanel {
             initComponents();
         }
         loadData();
+        if (!"Petugas".equals(Session.level)) {
+            txtId.setText(generateNextId());
+        }
     }
 
     // ── Mode Admin: Full CRUD ────────────────────────────────────────────────
@@ -384,7 +387,7 @@ public class FormCustomer extends JPanel {
     }
 
     private void bersihkan() {
-        txtId.setText(""); txtNama.setText(""); txtAlamat.setText(""); txtTelepon.setText("");
+        txtId.setText(generateNextId()); txtNama.setText(""); txtAlamat.setText(""); txtTelepon.setText("");
         txtNama.requestFocus();
         isEdit = false;
         btnSimpan.setEnabled(true);
